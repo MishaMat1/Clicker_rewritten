@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing JS</title>
+</head>
+<body>
+    Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br />
+    <button onclick="pointClick()">+1 point</button><br><br>
+    Click power: <span id="ClickPower">0</span><br>
+    <button onclick="buyClickPower()">+1 point per click<br>Cost: <span id="clickPowerCost">10</span></button><br>
+    Multiplier: <span id="multiplier">0</span><br>
+    <button onclick="buyMultiplier()">+1 multiplier<br>Cost: <span id="multiplierCost">50</span></button><br>
+    Compound:<span id="compound">0</span><br>
+    <button onclick="buyCompound()">x2 points<br>Cost: <span id="compoundCost">1000</span></button><br>
+    Autoclickers: <span id="autoclickers">0</span><br>
+    <button onclick="buyAutoclicker()">1 autoclicker = 1/5 of normal click<br>Cost: <span id="autoclickerCost">100</span></button><br>
+    Prestige: <span id="prestige">0</span><br>
+    <button onclick="prestigeGain()">Prestige<br><span id="prestigeAmount">1000000</span></button><br>
+    <script src="https://cdn.jsdelivr.net/npm/break_infinity.js@2/dist/break_infinity.min.js"></script>
+    <script src="game.js"></script>
+    <script src="save.js"></script>
+    <script src="ui.js"></script>
+    <script src="prestige.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
