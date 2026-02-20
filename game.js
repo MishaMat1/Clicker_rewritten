@@ -1,0 +1,16 @@
+const game = {
+    points: new Decimal(0),
+    clickPower: new Decimal(0),
+    clickPowerEffect: new Decimal(1),
+    clickPowerCost: new Decimal(10),
+    multiplier: new Decimal(0),
+    multiplierEffect: new Decimal(1),
+    multiplierCost: new Decimal(50),
+    compound: new Decimal(0),
+    compoundCost: new Decimal(1000),
+    compoundEffect: new Decimal(1),
+    autoclickers: new Decimal(0),
+    autoclickerCost: new Decimal(100),
+    prestigeRequirement: new Decimal(1e6),
+    prestigePoints: new Decimal(0),
+}
