@@ -34,7 +34,7 @@ function formatNumber(decimal) {
 }
 
 function getTotalPointMultiplier() {
-    const multipliers = [game.clickPowerEffect, game.multiplierEffect, game.compoundEffect];
+    const multipliers = [PointMultiplier("points"), PrestigeUpgBuyMultiplier("points")];
     let TotalPointMultiplier = new Decimal(1);
     return multipliers.reduce((total, multiplier) => total.mul(multiplier), TotalPointMultiplier);
 }
@@ -43,42 +43,180 @@ function pointClick(){
     game.points = game.points.add(getTotalPointMultiplier());
 }
 
-function buyClickPower(){
-    if(game.points.gte(game.clickPowerCost)){
-        game.points = game.points.sub(game.clickPowerCost);
-        game.clickPower = game.clickPower.add(1);
-        game.clickPowerCost = game.clickPowerCost.mul(1.25);
-        game.clickPowerEffect = game.clickPowerEffect.add(1);
+let PointUpgrades = [
+    {
+        name: "Click Power",
+        level: new Decimal(0),
+        description: "+1 per click per level",
+        baseCost: new Decimal(10),
+        costScaling: new Decimal(1.25),
+        type: "points",
+        category: "click",
+        getCost: function() {
+            if (this.level.lt(100)) {
+                return this.baseCost.mul(this.costScaling.pow(this.level));
+            }
+            return this.baseCost.mul(new Decimal(1.5).pow(this.level.sub(100))).mul(this.costScaling.pow(100));
+        },
+
+        effect: function() {
+            return new Decimal(1).add(this.level);
+        },
+        effectDescription: function() {
+            return "Currently: +" + formatNumber(this.effect()) + " per click";
+        }
+    },
+
+    {
+        name: "Multiplier",
+        level: new Decimal(0),
+        description: "+ x1 to point multiplier per level",
+        baseCost: new Decimal(50),
+        costScaling: new Decimal(1.5),
+        type: "points",
+        category: "multiplier",
+        getCost: function() {
+            if (this.level.lt(100)) {
+                return this.baseCost.mul(this.costScaling.pow(this.level));
+            }
+            return this.baseCost.mul(new Decimal(2).pow(this.level.sub(100))).mul(this.costScaling.pow(100));
+        },
+
+        effect: function() {
+            return new Decimal(1).add(this.level);
+        },
+        effectDescription: function() {
+            return "Currently: x" + formatNumber(this.effect());
+        }
+    },
+
+    {
+        name: "Compound",
+        level: new Decimal(0),
+        description: "x2 points per level",
+        baseCost: new Decimal(1000),
+        costScaling: new Decimal(3),
+        type: "points",
+        category: "compound",
+        getCost: function() {
+            if (this.level.lt(25)) {
+                return this.baseCost.mul(this.costScaling.pow(this.level));
+            }
+            return this.baseCost.mul(new Decimal(5).pow(this.level.sub(25))).mul(this.costScaling.pow(25));
+        },
+
+        effect: function() {
+            let base;
+            if (hasPrestigeUpgrade(7)){
+                 base = new Decimal(2).add(PrestigeUpgBuyMultiplier("compound"));
+            } else {
+                base = new Decimal(2);
+            } 
+            return base.pow(this.level);
+        },
+        effectDescription: function() {
+            return "Currently: x" + formatNumber(this.effect());
+        }
+    },
+
+    {
+        name: "Autoclicker",
+        level: new Decimal(0),
+        description: "1 autoclicker = 1/5 normal clicks per second",
+        baseCost: new Decimal(100),
+        costScaling: new Decimal(3),
+        type: "autoclicker",
+        category: "autoclicker",
+        getCost: function() {
+            return this.baseCost.mul(this.costScaling.pow(this.level));
+        },
+
+        effect: function() {
+            return new Decimal(1).add(this.level);
+        },
+        effectDescription: function() {
+            return "Currently: " + formatNumber(this.effect().minus(1)) + " autoclickers";
+        }
+    }
+];
+
+function buyPointUpgrade(index) {
+    let upg = PointUpgrades[index];
+    let cost = upg.getCost();
+    if (game.points.gte(cost)) {
+        game.points = game.points.sub(cost);
+        upg.level = upg.level.add(1);
+        upg.effect();
+        renderPointUpgrades();
     }
 }
 
-function buyMultiplier(){
-    if(game.points.gte(game.multiplierCost)){
-        game.points = game.points.sub(game.multiplierCost);
-        game.multiplier = game.multiplier.add(1);
-        game.multiplierCost = game.multiplierCost.mul(1.25);
-        game.multiplierEffect = game.multiplierEffect.add(1);
+function buyPointUpgradeMax(index) {
+    let upg = PointUpgrades[index];
+
+    while (game.points.gte(upg.getCost())) {
+        buyPointUpgrade(index);
     }
 }
 
-function buyCompound(){
-    if(game.points.gte(game.compoundCost)){
-        game.points = game.points.sub(game.compoundCost);
-        game.compound = game.compound.add(1);
-        game.compoundCost = game.compoundCost.mul(3);
-        game.compoundEffect = game.compoundEffect.mul(2);
-    }
+function PointMultiplier(type) {
+    let mult = new Decimal(1); 
+    PointUpgrades.forEach(upg => {
+        if (upg.level > 0 && upg.type === type) {
+            mult = mult.mul(upg.effect());
+        }
+    });
+    return mult;
 }
 
-function buyAutoclicker(){
-    if(game.points.gte(game.autoclickerCost)){
-        game.points = game.points.sub(game.autoclickerCost);
-        game.autoclickers = game.autoclickers.add(1);
-        game.autoclickerCost = game.autoclickerCost.mul(3);
-    }
+function renderPointUpgrades() {
+
+    // Clear all sections
+    document.getElementById("clickUpgrades").innerHTML = "";
+    document.getElementById("multiplierUpgrades").innerHTML = "";
+    document.getElementById("compoundUpgrades").innerHTML = "";
+    document.getElementById("autoclickerUpgrades").innerHTML = "";
+
+    PointUpgrades.forEach((upg, index) => {
+        let button = document.createElement("button");
+
+        button.innerHTML =
+            upg.name + "<br>" +
+            upg.description + "<br>" + 
+            "Level: " + upg.level + "<br>" +    
+            upg.effectDescription() + "<br>" +
+            formatNumber(upg.getCost()) + " Points";
+
+        button.onclick = function() {
+            buyPointUpgrade(index);
+        };
+
+        // Decide where it goes
+        if (upg.category === "click") {
+            document.getElementById("clickUpgrades").appendChild(button);
+        }
+        if (upg.category === "multiplier") {
+            document.getElementById("multiplierUpgrades").appendChild(button);
+        }
+        if (upg.category === "compound") {
+            document.getElementById("compoundUpgrades").appendChild(button);
+        }
+        if (upg.category === "autoclicker") {
+            document.getElementById("autoclickerUpgrades").appendChild(button);
+        }
+        if (hasPrestigeUpgrade(3)) {
+    let maxButton = document.createElement("button");
+    maxButton.innerText = "Buy Max";
+    maxButton.onclick = function() {
+        buyPointUpgradeMax(index);
+    };
+    document.getElementById(upg.category + "Upgrades").appendChild(maxButton);
+}
+    });
 }
 
 function Idle(diff){
-    let pointsFromAutoclickers = game.autoclickers.mul(getTotalPointMultiplier()).mul(diff / 5);
+    let pointsFromAutoclickers = PointUpgrades[3].level.mul(getTotalPointMultiplier()).mul((diff / 5)*PointUpgrades[3].effect().mul(PrestigeUpgBuyMultiplier("autoclicker")));
     game.points = game.points.add(pointsFromAutoclickers);
 }
+renderPointUpgrades();
