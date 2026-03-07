@@ -169,14 +169,6 @@ function PrestigeUpgBuyMultiplier(type) {
     });
     return mult;
 }
-
-function softcap(value, capStart, power) {
-    if (value.lte(capStart)) return value;
-
-    return capStart.mul(
-        value.div(capStart).pow(power)
-    );
-}
  
 function loadPrestigeUpgrades()
 {
@@ -195,7 +187,7 @@ function loadPrestigeUpgrades()
         }
             button.disabled = true;
         } else {
-        button.innerHTML = upg.name + "<br>" + upg.description + "<br>" + upg.cost + " PP";
+        button.innerHTML = upg.name + "<br>" + upg.description + "<br>" + formatNumber(upg.cost) + " PP";
         if(upg.effectDescription) {
             button.innerHTML += "<br>" + upg.effectDescription();
         }
