@@ -142,11 +142,13 @@ let PointUpgrades = [
         name: "Compound",
         level: new Decimal(0),
         description: function() {
-            if (hasPrestigeUpgrade(7)){
-                return "x3 points per level";
-                } else {
-                return "x2 points per level";
-            }
+            PrestigeUpgBuyAddition("compound").gt(1) || hasPrestigeUpgrade(7) ? 
+            base = this.base.add(PrestigeUpgBuyAddition("compound")).sub(1) : base = this.base;
+        if(base.lt(1000)) {
+            return "x" + base.toNumber().toFixed(1) + " per level"
+        } else {
+            return "x" + formatNumber(base) + " per level"
+        }
         },
         baseCost: new Decimal(1000),
         costScaling: new Decimal(3),
@@ -184,11 +186,8 @@ let PointUpgrades = [
             let base;
             let strenght = this.strenght;
             let softcapStart = this.softcapStart.mul(PrestigeUpgBuyMultiplier("SoftcapDelay").add(1));
-            if (hasPrestigeUpgrade(7)) {
-                base = this.base.add(PrestigeUpgBuyMultiplier("compound"));
-            } else {
-            base = this.base;
-            }
+            PrestigeUpgBuyAddition("compound").gt(1) || hasPrestigeUpgrade(7) ? 
+            base = this.base.add(PrestigeUpgBuyAddition("compound")).sub(1) : base = this.base;
             let value = base.pow(this.level);
             let cap = softcapStart;
             if (value.gt(cap)) {
@@ -197,8 +196,7 @@ let PointUpgrades = [
             return value;
         },
         effectDescription: function() {
-            let base = hasPrestigeUpgrade(7)
-        ? this.base.add(PrestigeUpgBuyMultiplier("compound")) : this.base;
+        let base = this.base.add(PrestigeUpgBuyAddition("compound")).sub(1)
         let uncapped = base.pow(this.level);
         let softcapStart = this.softcapStart.mul(PrestigeUpgBuyMultiplier("SoftcapDelay").add(1));
         let cap = softcapStart;

@@ -138,6 +138,20 @@ let PrestigeUpgrades = [
         description: "Unlock a new prestige buyable!",
         cost: new Decimal(2e5),
         bought: false
+     },
+     {
+        id: 12,
+        name: "Another one...",
+        description: "Yeah another prestige buyable",
+        cost: new Decimal(5e5),
+        bought: false
+     },
+     {
+        id: 13,
+        name: "A new feature.",
+        description: "Unlocks new feature",
+        cost: new Decimal(1e6),
+        bought: false
      }
 ];
 
@@ -217,7 +231,37 @@ let PrestigeBuyables = [
             return "Currently: x" + formatNumber(this.effect())
         },
         unlocked: () => {return !!hasPrestigeUpgrade(11)}
+    },
+    {
+        id: 3,
+        name: "Compound effect",
+        description: "Increase compound effect by +0.1",
+        type: "compound",
+        cost: new Decimal(1e5),
+        level: new Decimal(0),
+        ScaledLevel: new Decimal(25),
+        costScaling: function() {
+            let level = this.level
+            let ScaledLevel = this.ScaledLevel
+            if(level.lt(ScaledLevel)) {
+                return this.cost.mul(new Decimal(3).pow(level));
+            }
+                return this.cost.mul(new Decimal(5).pow(level.sub(ScaledLevel)).mul(new Decimal(3).pow(ScaledLevel)))
+        },
+        effect: function() {
+            return new Decimal(0.1).mul(this.level)
+        },
+        effectDescription: function () {
+           let eff = this.effect()
+        if(eff.lt(1000)) {
+            return "Currently: +" + eff.toNumber().toFixed(1)
+        } else {
+            return "Currently: +" + formatNumber(eff)
+        }
+        },
+        unlocked: () => {return !!hasPrestigeUpgrade(12)}
     }
+
 ]
 
 function PrestigeUpgBuyMultiplier(type) {
@@ -235,6 +279,21 @@ function PrestigeUpgBuyMultiplier(type) {
         }
     });
     return mult;
+}
+
+function PrestigeUpgBuyAddition(type) {
+    let add = new Decimal(1); 
+    PrestigeUpgrades.forEach(upg => {
+        if (upg.bought && upg.effect && upg.type === type) {
+            add = add.add(upg.effect());
+        }
+    });
+    PrestigeBuyables.forEach(buyable => {
+        if (buyable.unlocked() && buyable.type === type) {
+            add = add.add(buyable.effect());
+        }
+    });
+    return add;
 }
  
 function loadPrestigeUpgrades()
