@@ -2,4 +2,10 @@ const game = {
     points: new Decimal(0),
     prestigeRequirement: new Decimal(1e6),
     prestigePoints: new Decimal(0),
+    pointAuto: {
+        enabled: false,
+        timer: 0,
+        level: 0,
+        maxLevel: 10,
+    }
 }

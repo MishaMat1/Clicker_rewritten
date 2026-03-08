@@ -101,6 +101,25 @@ let PrestigeUpgrades = [
         effect: function() {
             return new Decimal(1)
         },
+     },
+     {
+        id: 8,
+        name: "First softcap delay",
+        description: "Delays compound effect softcap by x1k",
+        type: "SoftcapDelay",
+        cost: new Decimal(10000),
+        bought: false,
+        effect: function() {
+            return new Decimal(1000)
+        }
+     },
+     {
+        id: 9,
+        name: "Automation",
+        description: "Unlock some automation(yay)",
+        type: "unlock",
+        cost: new Decimal(25000),
+        bought: false,
      }
 ];
 
@@ -112,11 +131,14 @@ let PrestigeBuyables = [
         type: "points",
         cost: new Decimal(1),
         level: new Decimal(0),
+        ScaledLevel: new Decimal(100),
         costScaling: function() {
-            if (this.level.lte(25)) {
-            return new Decimal(1.5).pow(this.level).floor();
+            let level = this.level
+            let ScaledLevel = this.ScaledLevel
+            if (level.lt(ScaledLevel)) {
+            return new Decimal(1.5).pow(level).floor();
         }
-        return new Decimal(1.75).pow(this.level.sub(25)).mul(new Decimal(1.5).pow(25)).floor();
+            return new Decimal(1.75).pow(level.sub(ScaledLevel)).mul(new Decimal(1.5).pow(ScaledLevel)).floor();
     },
         effect: function() {
             return new Decimal(1.5).pow(this.level);
@@ -131,18 +153,21 @@ let PrestigeBuyables = [
     {
         id: 1,
         name: "Prestige boost",
-        description: "Increases prestige point gain by x1.1 per level.",
+        description: "Increases prestige point gain by x1.2 per level.",
         type: "prestige",
         cost: new Decimal(50),
         level: new Decimal(0),
+        ScaledLevel: new Decimal(100),
         costScaling: function() {
-            if (this.level.lte(25)) {
-            return new Decimal(1.5).pow(this.level).floor();
+            let level = this.level
+            let ScaledLevel = this.ScaledLevel
+            if (level.lt(ScaledLevel)) {
+            return new Decimal(1.5).pow(level).floor();
         }
-            return new Decimal(1.75).pow(this.level.sub(25)).mul(new Decimal(1.5).pow(25)).floor();
+            return new Decimal(1.75).pow(level.sub(ScaledLevel)).mul(new Decimal(1.5).pow(ScaledLevel)).floor();
         },
         effect: function() {
-            return new Decimal(1.1).pow(this.level);
+            return new Decimal(1.2).pow(this.level);
         },
         effectDescription: function() {
             return "Currently: x" + formatNumber(this.effect());

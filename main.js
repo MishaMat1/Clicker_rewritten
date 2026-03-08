@@ -5,6 +5,18 @@ function gameLoop() {
     const diff = (now - lastUpdate) / 1000;
     lastUpdate = now;
 
+    game.pointAuto.timer += diff;
+
+let interval = getPointAutoInterval();
+
+if (game.pointAuto.enabled && game.pointAuto.timer >= interval) {
+    game.pointAuto.timer = 0;
+
+    for (let i = 0; i < PointUpgrades.length; i++) {
+        buyPointUpgradeMax(i);
+    }
+}
+
     Idle(diff);
 
     updateUI();
@@ -50,13 +62,31 @@ let PointUpgrades = [
         description: "+1 per click per level",
         baseCost: new Decimal(10),
         costScaling: new Decimal(1.25),
+        ScaledLevel: new Decimal(100),
+        SuperScaledLevel: new Decimal(250),
         type: "points",
         category: "click",
         getCost: function() {
-            if (this.level.lt(100)) {
-                return this.baseCost.mul(this.costScaling.pow(this.level));
+            let level = this.level;
+            let scaled = this.ScaledLevel;
+            let superScaled = this.SuperScaledLevel;
+
+            let cost;
+            if (level.lt(scaled)) {
+                cost = this.baseCost.mul(this.costScaling.pow(level));
+
+            } else if (level.lt(superScaled)) {
+                let startCost = this.baseCost.mul(this.costScaling.pow(scaled));
+                cost = startCost.mul(new Decimal(1.5).pow(level.sub(scaled)));
+
+            } else {
+                let startCost = this.baseCost
+                    .mul(this.costScaling.pow(scaled))
+                    .mul(new Decimal(1.5).pow(superScaled.sub(scaled)));
+                cost = startCost.mul(new Decimal(2).pow(level.sub(superScaled)));
             }
-            return this.baseCost.mul(new Decimal(1.5).pow(this.level.sub(100))).mul(this.costScaling.pow(100));
+
+            return cost;
         },
 
         effect: function() {
@@ -73,13 +103,31 @@ let PointUpgrades = [
         description: "+ x1 to point multiplier per level",
         baseCost: new Decimal(50),
         costScaling: new Decimal(1.5),
+        ScaledLevel: new Decimal(100),
+        SuperScaledLevel: new Decimal(250),
         type: "points",
         category: "multiplier",
         getCost: function() {
-            if (this.level.lt(100)) {
-                return this.baseCost.mul(this.costScaling.pow(this.level));
+            let level = this.level;
+            let scaled = this.ScaledLevel;
+            let superScaled = this.SuperScaledLevel;
+
+            let cost;
+            if (level.lt(scaled)) {
+                cost = this.baseCost.mul(this.costScaling.pow(level));
+
+            } else if (level.lt(superScaled)) {
+                let startCost = this.baseCost.mul(this.costScaling.pow(scaled));
+                cost = startCost.mul(new Decimal(2).pow(level.sub(scaled)));
+
+            } else {
+                let startCost = this.baseCost
+                    .mul(this.costScaling.pow(scaled))
+                    .mul(new Decimal(2).pow(superScaled.sub(scaled)));
+                cost = startCost.mul(new Decimal(2.5).pow(level.sub(superScaled)));
             }
-            return this.baseCost.mul(new Decimal(2).pow(this.level.sub(100))).mul(this.costScaling.pow(100));
+
+            return cost;
         },
 
         effect: function() {
@@ -141,14 +189,14 @@ let PointUpgrades = [
         effect: function() {
             let base;
             let strenght = this.strenght;
-            let softcapStart = this.softcapStart;
+            let softcapStart = this.softcapStart.mul(PrestigeUpgBuyMultiplier("SoftcapDelay").add(1));
             if (hasPrestigeUpgrade(7)) {
                 base = this.base.add(PrestigeUpgBuyMultiplier("compound"));
             } else {
             base = this.base;
             }
             let value = base.pow(this.level);
-            let cap = new Decimal(softcapStart);
+            let cap = softcapStart;
             if (value.gt(cap)) {
                 value = value.div(cap).pow(strenght).mul(cap);
             }
@@ -158,8 +206,9 @@ let PointUpgrades = [
             let base = hasPrestigeUpgrade(7)
         ? this.base.add(PrestigeUpgBuyMultiplier("compound")) : this.base;
         let uncapped = base.pow(this.level);
-        let cap = new Decimal(this.softcapStart);
-            
+        let softcapStart = this.softcapStart.mul(PrestigeUpgBuyMultiplier("SoftcapDelay").add(1));
+        let cap = softcapStart;
+
             let text = "Currently: x" + formatNumber(this.effect());
 
             if (uncapped.gt(cap)) {
@@ -183,10 +232,31 @@ let PointUpgrades = [
         },
         baseCost: new Decimal(100),
         costScaling: new Decimal(3),
+        ScaledLevel: new Decimal(100),
+        SuperScaledLevel: new Decimal(1000),
         type: "autoclicker",
         category: "autoclicker",
         getCost: function() {
-            return this.baseCost.mul(this.costScaling.pow(this.level));
+            let level = this.level;
+            let scaled = this.ScaledLevel;
+            let superScaled = this.SuperScaledLevel;
+
+            let cost;
+            if (level.lt(scaled)) {
+                cost = this.baseCost.mul(this.costScaling.pow(level));
+
+            } else if (level.lt(superScaled)) {
+                let startCost = this.baseCost.mul(this.costScaling.pow(scaled));
+                cost = startCost.mul(new Decimal(5).pow(level.sub(scaled)));
+
+            } else {
+                let startCost = this.baseCost
+                    .mul(this.costScaling.pow(scaled))
+                    .mul(new Decimal(5).pow(superScaled.sub(scaled)));
+                cost = startCost.mul(new Decimal(10).pow(level.sub(superScaled)));
+            }
+
+            return cost;
         },
 
         effect: function() {
@@ -212,8 +282,6 @@ function buyPointUpgrade(index) {
 function buyPointUpgradeMax(index) {
     let upg = PointUpgrades[index];
 
-   
-    let level = upg.level;
     let points = game.points;
 
     while (true) {
@@ -253,8 +321,6 @@ function PointMultiplier(type) {
 }
 
 function renderPointUpgrades() {
-
-    // Clear all sections
     document.getElementById("clickUpgrades").innerHTML = "";
     document.getElementById("multiplierUpgrades").innerHTML = "";
     document.getElementById("compoundUpgrades").innerHTML = "";
@@ -266,7 +332,7 @@ function renderPointUpgrades() {
 const lines = [
     upg.name,
     typeof upg.description === "function" ? upg.description() : upg.description,
-    "Level: " + upg.level,
+    "Level: " + formatNumber(upg.level),
     upg.effectDescription ? upg.effectDescription() : null,
     formatNumber(upg.getCost()) + " Points"
 ].filter(Boolean);
@@ -277,7 +343,6 @@ button.innerHTML = lines.join("<br>");
             buyPointUpgrade(index);
         };
 
-        // Decide where it goes
         if (upg.category === "click") {
             document.getElementById("clickUpgrades").appendChild(button);
         }
