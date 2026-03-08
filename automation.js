@@ -41,6 +41,7 @@ function generateAutomationUI() {
         upgradeBtn.onclick = () => {
             auto.upgrade();
             generateAutomationUI();
+            loadPrestigeUpgrades();
         };
 
         button.onclick = () => {

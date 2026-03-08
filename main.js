@@ -159,28 +159,22 @@ let PointUpgrades = [
         category: "compound",
         getCost: function() {
             let level = this.level;
-            let scaled = this.ScaledLevel;
+            let scaled = this.ScaledLevel.add(PrestigeUpgBuyMultiplier("ScalingDelay"));
             let superScaled = this.SuperScaledLevel;
 
             let cost;
             if (level.lt(scaled)) {
-                // normal scaling
                 cost = this.baseCost.mul(this.costScaling.pow(level));
 
             } else if (level.lt(superScaled)) {
-                // cost at the start of scaled region
                 let startCost = this.baseCost.mul(this.costScaling.pow(scaled));
-
-                // grow with ×5 from there
                 cost = startCost.mul(new Decimal(5).pow(level.sub(scaled)));
 
             } else {
-                // cost at the start of super scaled region
                 let startCost = this.baseCost
                     .mul(this.costScaling.pow(scaled))
                     .mul(new Decimal(5).pow(superScaled.sub(scaled)));
-                // grow with ×10 from there
-                cost = startCost.mul(new Decimal(10).pow(level.sub(superScaled)));
+                cost = startCost.mul(new Decimal(7.5).pow(level.sub(superScaled)));
             }
 
             return cost;

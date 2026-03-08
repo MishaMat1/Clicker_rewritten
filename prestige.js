@@ -120,6 +120,24 @@ let PrestigeUpgrades = [
         type: "unlock",
         cost: new Decimal(25000),
         bought: false,
+     },
+     {
+        id: 10,
+        name: "Scaled level delay",
+        description: "Delay scaled level of compound by 25 (base is 25)",
+        type: "ScalingDelay",
+        cost: new Decimal(1e5),
+        bought: false,
+        effect: function() {
+            return new Decimal(25)
+        }
+     },
+     {
+        id: 11,
+        name: "A new buyable",
+        description: "Unlock a new prestige buyable!",
+        cost: new Decimal(2e5),
+        bought: false
      }
 ];
 
@@ -155,7 +173,7 @@ let PrestigeBuyables = [
         name: "Prestige boost",
         description: "Increases prestige point gain by x1.2 per level.",
         type: "prestige",
-        cost: new Decimal(50),
+        cost: new Decimal(1),
         level: new Decimal(0),
         ScaledLevel: new Decimal(100),
         costScaling: function() {
@@ -175,6 +193,30 @@ let PrestigeBuyables = [
         unlocked: function() {
             return !!hasPrestigeUpgrade(4);
         },   
+    },
+    {
+        id: 2,
+        name: "Softcap delay",
+        description: "Delays compound softcap by x10",
+        type: "SoftcapDelay",
+        cost: new Decimal(10000),
+        level: new Decimal(0),
+        ScaledLevel: new Decimal(50),
+        costScaling: function() {
+            let level = this.level
+            let ScaledLevel = this.ScaledLevel
+            if(level.lt(ScaledLevel)) {
+                return this.cost.mul(new Decimal(1.5).pow(level));
+            }
+                return this.cost.mul(new Decimal(2).pow(level.sub(ScaledLevel)).mul(new Decimal(1.5).pow(ScaledLevel)))
+        },
+        effect: function() {
+            return new Decimal(10).pow(this.level)
+        },
+        effectDescription: function () {
+            return "Currently: x" + formatNumber(this.effect())
+        },
+        unlocked: () => {return !!hasPrestigeUpgrade(11)}
     }
 ]
 
@@ -264,7 +306,8 @@ function buyPrestigeBuyable(index) {
         game.prestigePoints = game.prestigePoints.sub(cost)
         buyable.level = buyable.level.add(1)
         if(buyable.effect) buyable.effect();
-        loadPrestigeUpgrades() // refresh tab
+        loadPrestigeUpgrades();
+        renderPointUpgrades();
     }
 }
 
