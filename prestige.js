@@ -161,6 +161,7 @@ let PrestigeBuyables = [
         name: "Point boost",
         description: "Increases point gain by x1.5 per level.",
         type: "points",
+        category: "buyable",
         cost: new Decimal(1),
         level: new Decimal(0),
         ScaledLevel: new Decimal(100),
@@ -187,6 +188,7 @@ let PrestigeBuyables = [
         name: "Prestige boost",
         description: "Increases prestige point gain by x1.2 per level.",
         type: "prestige",
+        category: "buyable",
         cost: new Decimal(1),
         level: new Decimal(0),
         ScaledLevel: new Decimal(100),
@@ -213,6 +215,7 @@ let PrestigeBuyables = [
         name: "Softcap delay",
         description: "Delays compound softcap by x10",
         type: "SoftcapDelay",
+        category: "buyable",
         cost: new Decimal(10000),
         level: new Decimal(0),
         ScaledLevel: new Decimal(50),
@@ -237,6 +240,7 @@ let PrestigeBuyables = [
         name: "Compound effect",
         description: "Increase compound effect by +0.1",
         type: "compound",
+        category: "buyable",
         cost: new Decimal(1e5),
         level: new Decimal(0),
         ScaledLevel: new Decimal(25),
@@ -342,7 +346,15 @@ PrestigeBuyables.forEach((buyable, index) => {
         buyPrestigeBuyable(index);
     };
     tab.appendChild(button);
+    if (hasPrestigeUpgrade(3)) {
+    let maxButton = document.createElement("button");
+    maxButton.innerText = "Buy Max";
+    maxButton.onclick = function() {
+        buyPrestigeBuyableMax(index);
+    };
+    tab.appendChild(maxButton);
     tab.appendChild(document.createElement("br"));
+}
 });
 }
 }
@@ -369,6 +381,38 @@ function buyPrestigeBuyable(index) {
         renderPointUpgrades();
     }
 }
+
+function buyPrestigeBuyableMax(index) {
+    let upg = PrestigeBuyables[index];
+
+    let prestigePoints = game.prestigePoints;
+
+    while (true) {
+
+        let cost = upg.costScaling();
+        if (prestigePoints.lt(cost)) break;
+
+        let bulk = 1;
+
+        let totalCost = new Decimal(0);
+
+        for (let i = 0; i < bulk; i++) {
+            let c = upg.costScaling();
+            if (prestigePoints.lt(totalCost.add(c))) break;
+
+            totalCost = totalCost.add(c);
+            upg.level = upg.level.add(1);
+            bulk *= 2
+        }
+
+        if (totalCost.eq(0)) break;
+
+        prestigePoints = prestigePoints.sub(totalCost);
+    }
+    game.prestigePoints = prestigePoints
+    renderPointUpgrades();
+    loadPrestigeUpgrades();
+    }
 
 function hasPrestigeUpgrade(id) {
     return !!PrestigeUpgrades.find(u => u.id === id)?.bought
