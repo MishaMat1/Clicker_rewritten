@@ -21,6 +21,10 @@
 .buymax {
     display: none;
 }
+.active {
+    background-color: black;
+    color: white;
+}
 .prestigeBtn {
     border: 2px solid darkblue;
     background-color: lightblue;
@@ -28,4 +32,8 @@
 .automationBtn {
     border: 2px solid darkgray;
     background-color: gray;
+}
+.ascensionBtn {
+    border: 2px solid darkgoldenrod;
+    background-color: lightyellow;
 }

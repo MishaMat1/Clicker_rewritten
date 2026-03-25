@@ -1,13 +1,19 @@
 function prestigeReset() {
     game.points = new Decimal(0);
     PointUpgrades.forEach(upg => upg.level = new Decimal(0));
+    if (hasAscensionMilestone(2)) {
+        PointUpgrades[3].level = new Decimal(1)
+    }
 }
 
 function GetPrestigeGain(){
+    const prestigeMUltipliers = [PrestigeUpgBuyMultiplier("prestige"), ChargeMulti("prestige"), AscensionMulti("prestige"), AscensionUpgMultiplier("prestige")]
+    let TotalPrestigeMulti = new Decimal(1)
+    let pMultiplier = prestigeMUltipliers.reduce((total, multi) => total.mul(multi), TotalPrestigeMulti)
     if(game.points.gte(game.prestigeRequirement)){
         let ratio = game.points.div(game.prestigeRequirement.div(10));
         let PrestigelogGain = ratio.log10()
-        return new Decimal(PrestigelogGain).pow(1.75).mul(PrestigeUpgBuyMultiplier("prestige")).floor();
+        return new Decimal(PrestigelogGain).pow(1.75).mul(pMultiplier).floor();
     }
 }
 
@@ -18,8 +24,71 @@ function prestige() {
         game.prestigePoints = game.prestigePoints.add(gain);
         prestigeReset();
         loadPrestigeUpgrades();
-        renderPointUpgrades();
+        const upgrades = document.getElementById("upgrades");
+        const buyables = document.getElementById("buyables");
+        if (upgrades && buyables) {
+            upgrades.style.display = "block";
+            buyables.style.display = "none";
+        }
     }
+}
+
+function loadPrestigeUpgrades() {
+    let upgradeContainer = document.getElementById("upgradesContainer");
+
+upgradeContainer.replaceChildren();
+    upgradeContainer.appendChild(document.createTextNode("Prestige: " + formatNumber(game.prestigePoints)));
+    upgradeContainer.appendChild(document.createElement("br"));
+    upgradeContainer.appendChild(document.createTextNode("Prestige upgrades: "));
+    upgradeContainer.appendChild(document.createElement("br"));
+    PrestigeUpgrades.forEach((upg, index) => {
+        let button = document.createElement("button");
+        if(upg.bought) {
+            button.innerHTML = upg.name + "<br>" + upg.description + "<br>Bought";
+            if(upg.effectDescription) {
+            button.innerHTML += "<br>" + upg.effectDescription();
+        }
+            button.disabled = true;
+        } else {
+        button.innerHTML = upg.name + "<br>" + upg.description + "<br>" + formatNumber(upg.cost) + " PP";
+        if(upg.effectDescription) {
+            button.innerHTML += "<br>" + upg.effectDescription();
+        }
+    }
+        button.onclick = function() {
+            buyPrestigeUpgrade(index);
+        };
+        upgradeContainer.appendChild(button);
+    });
+let anyUnlocked = PrestigeBuyables.some(b => b.unlocked());
+if(anyUnlocked) {
+    upgradeContainer.appendChild(document.createElement("br"));
+    upgradeContainer.appendChild(document.createTextNode("Prestige buyables: "));
+    upgradeContainer.appendChild(document.createElement("br"));
+
+PrestigeBuyables.forEach((buyable, index) => {
+    if(!buyable.unlocked()) return;
+    let button = document.createElement("button");
+    button.innerHTML =
+        buyable.name + "<br>" +
+        buyable.description + "<br>" +
+        "Level: " + buyable.level + "<br>" +
+        buyable.effectDescription() + "<br>" +
+        formatNumber(buyable.costScaling()) + " PP";
+    button.onclick = function() {
+        buyPrestigeBuyable(index);
+    };
+    upgradeContainer.appendChild(button);
+    if (hasPrestigeUpgrade(3)) {
+    let maxButton = document.createElement("button");
+    maxButton.innerText = "Buy Max";
+    maxButton.onclick = function() {
+        buyPrestigeBuyableMax(index);
+    };
+    upgradeContainer.appendChild(maxButton);
+    upgradeContainer.appendChild(document.createElement("br"));
+}});
+}
 }
 
 let PrestigeUpgrades = [
@@ -30,6 +99,7 @@ let PrestigeUpgrades = [
         type: "points",
         cost: new Decimal(1),
         bought: false,
+        permament: false,
         effect: function() {
             return new Decimal(3);
         },
@@ -37,12 +107,13 @@ let PrestigeUpgrades = [
     {
         id: 1,
         name: "Auto Clicker Boost",
-        description: "Doubles the effect of autoclickers.",
+        description: "x2.5 the effect of autoclickers.",
         type: "autoclicker",
         cost: new Decimal(3),
         bought: false,
+        permament: false,
         effect: function() {
-            return new Decimal(2);
+            return new Decimal(2.5);
         },
     },
     {
@@ -50,7 +121,8 @@ let PrestigeUpgrades = [
         name: "Unlock Prestige Buyables",
         description: "Unlock prestige buyables.",
         cost: new Decimal(5),
-        bought: false
+        bought: false,
+        permament: false
     },
     {
         id: 3,
@@ -58,6 +130,7 @@ let PrestigeUpgrades = [
         description: "Unlocks buy max",
         cost: new Decimal(25),
         bought: false,
+        permament: true
     },
     {
         id: 4,
@@ -65,6 +138,7 @@ let PrestigeUpgrades = [
         description: "Unlocks another prestige buyable",
         cost: new Decimal(100),
         bought: false,
+        permament: false
      },
      {
         id: 5,
@@ -73,6 +147,7 @@ let PrestigeUpgrades = [
         type: "autoclicker",
         cost: new Decimal(250),
         bought: false,
+        permament: false,
         effect: function() {
             return new Decimal(2.5);
         },
@@ -84,6 +159,7 @@ let PrestigeUpgrades = [
         type: "points",
         cost: new Decimal(1000),
         bought: false,
+        permament: false,
         effect: function() {
             return Decimal.max(1, (Decimal.log(game.prestigePoints.pow(1.5), 2)));
         },
@@ -98,6 +174,7 @@ let PrestigeUpgrades = [
         type: "compound",
         cost: new Decimal(5000),
         bought: false,
+        permament: false,
         effect: function() {
             return new Decimal(1)
         },
@@ -109,6 +186,7 @@ let PrestigeUpgrades = [
         type: "SoftcapDelay",
         cost: new Decimal(10000),
         bought: false,
+        permament: false,
         effect: function() {
             return new Decimal(1000)
         }
@@ -120,6 +198,7 @@ let PrestigeUpgrades = [
         type: "unlock",
         cost: new Decimal(25000),
         bought: false,
+        permament: true
      },
      {
         id: 10,
@@ -128,6 +207,7 @@ let PrestigeUpgrades = [
         type: "ScalingDelay",
         cost: new Decimal(1e5),
         bought: false,
+        permament: false,
         effect: function() {
             return new Decimal(25)
         }
@@ -137,21 +217,42 @@ let PrestigeUpgrades = [
         name: "A new buyable",
         description: "Unlock a new prestige buyable!",
         cost: new Decimal(2e5),
-        bought: false
+        bought: false,
+        permament: false
      },
      {
         id: 12,
         name: "Another one...",
         description: "Yeah another prestige buyable",
         cost: new Decimal(5e5),
-        bought: false
+        bought: false,
+        permament: false
      },
      {
         id: 13,
         name: "A new feature.",
-        description: "Unlocks new feature",
+        description: "Unlock charge",
         cost: new Decimal(1e6),
-        bought: false
+        bought: false,
+        permament: false,
+        effect: function(){ loadPrestigeCharge() }
+     },
+     {
+        id: 14,
+        name: "Yay a buyable",
+        description: "Yay a buyable",
+        cost: new Decimal(1e7),
+        bought: false,
+        permament: false
+     },
+     {
+        id: 15,
+        name: "A new layer",
+        description: "Unlock ascension",
+        cost: new Decimal(1e8),
+        bought: false,
+        permament: true,
+        effect: () => { document.getElementById("ascension-box").style.display = "block" }
      }
 ];
 
@@ -161,7 +262,6 @@ let PrestigeBuyables = [
         name: "Point boost",
         description: "Increases point gain by x1.5 per level.",
         type: "points",
-        category: "buyable",
         cost: new Decimal(1),
         level: new Decimal(0),
         ScaledLevel: new Decimal(100),
@@ -188,7 +288,6 @@ let PrestigeBuyables = [
         name: "Prestige boost",
         description: "Increases prestige point gain by x1.2 per level.",
         type: "prestige",
-        category: "buyable",
         cost: new Decimal(1),
         level: new Decimal(0),
         ScaledLevel: new Decimal(100),
@@ -215,7 +314,6 @@ let PrestigeBuyables = [
         name: "Softcap delay",
         description: "Delays compound softcap by x10",
         type: "SoftcapDelay",
-        category: "buyable",
         cost: new Decimal(10000),
         level: new Decimal(0),
         ScaledLevel: new Decimal(50),
@@ -240,7 +338,6 @@ let PrestigeBuyables = [
         name: "Compound effect",
         description: "Increase compound effect by +0.1",
         type: "compound",
-        category: "buyable",
         cost: new Decimal(1e5),
         level: new Decimal(0),
         ScaledLevel: new Decimal(25),
@@ -264,19 +361,39 @@ let PrestigeBuyables = [
         }
         },
         unlocked: () => {return !!hasPrestigeUpgrade(12)}
+    },
+    {
+        id: 4,
+        name: "More charge",
+        description: "Double charge gain per lvl",
+        type: "charge",
+        cost: new Decimal(1e6),
+        level: new Decimal(0),
+        ScaledLevel: new Decimal(25),
+        costScaling: function() {
+            let level = this.level
+            if(level.lt(this.ScaledLevel)) {
+                return this.cost.mul(new Decimal(10).pow(level))
+            } 
+                return this.cost.mul(new Decimal(20).pow(level.sub(ScaledLevel)).mul(new Decimal(10).pow(ScaledLevel)))
+        },
+        effect: function() {
+            return new Decimal(2).pow(this.level)
+        },
+        effectDescription: function() {
+            return "Currently x" + formatNumber(this.effect())
+        },
+        unlocked() {return !!hasPrestigeUpgrade(14)}
     }
-
 ]
 
 function PrestigeUpgBuyMultiplier(type) {
     let mult = new Decimal(1); 
-    // Apply upgrades
     PrestigeUpgrades.forEach(upg => {
         if (upg.bought && upg.effect && upg.type === type) {
             mult = mult.mul(upg.effect());
         }
     });
-    // Apply buyables
     PrestigeBuyables.forEach(buyable => {
         if (buyable.unlocked() && buyable.type === type) {
             mult = mult.mul(buyable.effect());
@@ -286,7 +403,7 @@ function PrestigeUpgBuyMultiplier(type) {
 }
 
 function PrestigeUpgBuyAddition(type) {
-    let add = new Decimal(1); 
+    let add = new Decimal(0); 
     PrestigeUpgrades.forEach(upg => {
         if (upg.bought && upg.effect && upg.type === type) {
             add = add.add(upg.effect());
@@ -298,65 +415,6 @@ function PrestigeUpgBuyAddition(type) {
         }
     });
     return add;
-}
- 
-function loadPrestigeUpgrades()
-{
-    let tab = document.getElementById("prestigeTab");
-    tab.innerHTML = "";
-    tab.appendChild(document.createTextNode("Prestige: " + formatNumber(game.prestigePoints)));
-    tab.appendChild(document.createElement("br"));
-    tab.appendChild(document.createTextNode("Prestige upgrades: "));
-    tab.appendChild(document.createElement("br"));
-    PrestigeUpgrades.forEach((upg, index) => {
-        let button = document.createElement("button");
-        if(upg.bought) {
-            button.innerHTML = upg.name + "<br>" + upg.description + "<br>Bought";
-            if(upg.effectDescription) {
-            button.innerHTML += "<br>" + upg.effectDescription();
-        }
-            button.disabled = true;
-        } else {
-        button.innerHTML = upg.name + "<br>" + upg.description + "<br>" + formatNumber(upg.cost) + " PP";
-        if(upg.effectDescription) {
-            button.innerHTML += "<br>" + upg.effectDescription();
-        }
-    }
-        button.onclick = function() {
-            buyPrestigeUpgrade(index);
-        };
-        tab.appendChild(button);
-    });
-let anyUnlocked = PrestigeBuyables.some(b => b.unlocked());
-if(anyUnlocked) {
-    tab.appendChild(document.createElement("br"));
-    tab.appendChild(document.createTextNode("Prestige buyables: "));
-    tab.appendChild(document.createElement("br"));
-
-PrestigeBuyables.forEach((buyable, index) => {
-    if(!buyable.unlocked()) return;
-    let button = document.createElement("button");
-    button.innerHTML =
-        buyable.name + "<br>" +
-        buyable.description + "<br>" +
-        "Level: " + buyable.level + "<br>" +
-        buyable.effectDescription() + "<br>" +
-        formatNumber(buyable.costScaling()) + " PP";
-    button.onclick = function() {
-        buyPrestigeBuyable(index);
-    };
-    tab.appendChild(button);
-    if (hasPrestigeUpgrade(3)) {
-    let maxButton = document.createElement("button");
-    maxButton.innerText = "Buy Max";
-    maxButton.onclick = function() {
-        buyPrestigeBuyableMax(index);
-    };
-    tab.appendChild(maxButton);
-    tab.appendChild(document.createElement("br"));
-}
-});
-}
 }
 
 function buyPrestigeUpgrade(id) {
@@ -370,8 +428,8 @@ function buyPrestigeUpgrade(id) {
     }
 }
 
-function buyPrestigeBuyable(index) {
-    let buyable = PrestigeBuyables[index]
+function buyPrestigeBuyable(id) {
+    let buyable = PrestigeBuyables[id]
     let cost = buyable.costScaling()
     if(game.prestigePoints.gte(cost)) {
         game.prestigePoints = game.prestigePoints.sub(cost)
@@ -384,22 +442,15 @@ function buyPrestigeBuyable(index) {
 
 function buyPrestigeBuyableMax(index) {
     let upg = PrestigeBuyables[index];
-
     let prestigePoints = game.prestigePoints;
-
     while (true) {
-
         let cost = upg.costScaling();
         if (prestigePoints.lt(cost)) break;
-
         let bulk = 1;
-
         let totalCost = new Decimal(0);
-
         for (let i = 0; i < bulk; i++) {
             let c = upg.costScaling();
             if (prestigePoints.lt(totalCost.add(c))) break;
-
             totalCost = totalCost.add(c);
             upg.level = upg.level.add(1);
             bulk *= 2
@@ -413,6 +464,7 @@ function buyPrestigeBuyableMax(index) {
     renderPointUpgrades();
     loadPrestigeUpgrades();
     }
+
 
 function hasPrestigeUpgrade(id) {
     return !!PrestigeUpgrades.find(u => u.id === id)?.bought

@@ -18,7 +18,12 @@ if (game.pointAuto.enabled && game.pointAuto.timer >= interval) {
 }
 
     Idle(diff);
-
+    if(hasPrestigeUpgrade(13)) {
+        chargeGen(diff);
+    }
+    updateChargeMilestones();
+    updateAscensionMilestones();
+    updateEffectDescription();
     updateUI();
 }
 
@@ -46,7 +51,7 @@ function formatNumber(decimal) {
 }
 
 function getTotalPointMultiplier() {
-    const multipliers = [PointMultiplier("points"), PrestigeUpgBuyMultiplier("points")];
+    const multipliers = [PointMultiplier("points"), PrestigeUpgBuyMultiplier("points"), ChargeMulti("points"), AscensionUpgMultiplier("points")];
     let TotalPointMultiplier = new Decimal(1);
     return multipliers.reduce((total, multiplier) => total.mul(multiplier), TotalPointMultiplier);
 }
@@ -142,10 +147,9 @@ let PointUpgrades = [
         name: "Compound",
         level: new Decimal(0),
         description: function() {
-            PrestigeUpgBuyAddition("compound").gt(1) || hasPrestigeUpgrade(7) ? 
-            base = this.base.add(PrestigeUpgBuyAddition("compound")).sub(1) : base = this.base;
+            let base = this.base.add(this.getBase())
         if(base.lt(1000)) {
-            return "x" + base.toNumber().toFixed(1) + " per level"
+            return "x" + base.toNumber().toFixed(2) + " per level"
         } else {
             return "x" + formatNumber(base) + " per level"
         }
@@ -153,6 +157,11 @@ let PointUpgrades = [
         baseCost: new Decimal(1000),
         costScaling: new Decimal(3),
         base: new Decimal(2),
+        getBase() {
+            const BaseAdd = [PrestigeUpgBuyAddition("compound"), ChargeAdd("compound")]
+            let TotalBase = new Decimal(1)
+            return BaseAdd.reduce((total, add) => total.add(add), TotalBase).sub(1)
+        },
         ScaledLevel: new Decimal(25),
         SuperScaledLevel: new Decimal(100),
         softcapStart: new Decimal(1e27),
@@ -186,8 +195,7 @@ let PointUpgrades = [
             let base;
             let strenght = this.strenght;
             let softcapStart = this.softcapStart.mul(PrestigeUpgBuyMultiplier("SoftcapDelay").add(1));
-            PrestigeUpgBuyAddition("compound").gt(1) || hasPrestigeUpgrade(7) ? 
-            base = this.base.add(PrestigeUpgBuyAddition("compound")).sub(1) : base = this.base;
+            base = this.base.add(this.getBase())
             let value = base.pow(this.level);
             let cap = softcapStart;
             if (value.gt(cap)) {
@@ -196,7 +204,7 @@ let PointUpgrades = [
             return value;
         },
         effectDescription: function() {
-        let base = this.base.add(PrestigeUpgBuyAddition("compound")).sub(1)
+        let base = this.base.add(this.getBase())
         let uncapped = base.pow(this.level);
         let softcapStart = this.softcapStart.mul(PrestigeUpgBuyMultiplier("SoftcapDelay").add(1));
         let cap = softcapStart;
@@ -267,7 +275,6 @@ function buyPointUpgrade(index) {
         game.points = game.points.sub(cost);
         upg.level = upg.level.add(1);
         upg.effect();
-        renderPointUpgrades();
     }
 }
 
@@ -298,7 +305,6 @@ function buyPointUpgradeMax(index) {
 
         points = points.sub(totalCost);
     }
-    renderPointUpgrades();
     game.points = points
 }
 
@@ -313,14 +319,15 @@ function PointMultiplier(type) {
 }
 
 function renderPointUpgrades() {
-    document.getElementById("clickUpgrades").innerHTML = "";
-    document.getElementById("multiplierUpgrades").innerHTML = "";
-    document.getElementById("compoundUpgrades").innerHTML = "";
-    document.getElementById("autoclickerUpgrades").innerHTML = "";
+    document.getElementById("clickUpgrades").replaceChildren();
+    document.getElementById("multiplierUpgrades").replaceChildren();
+    document.getElementById("compoundUpgrades").replaceChildren();
+    document.getElementById("autoclickerUpgrades").replaceChildren();
 
     PointUpgrades.forEach((upg, index) => {
         let button = document.createElement("button");
-
+        button.id = `point-upgrade-${index}`
+        upg.container = button;
 const lines = [
     upg.name,
     typeof upg.description === "function" ? upg.description() : upg.description,
@@ -358,8 +365,25 @@ button.innerHTML = lines.join("<br>");
     });
 }
 
+function updatePointUpgradesUI() {
+    PointUpgrades.forEach((upg) => {
+        if (upg.container) {
+            const lines = [
+                upg.name,
+                typeof upg.description === "function" ? upg.description() : upg.description,
+                "Level: " + formatNumber(upg.level),
+                upg.effectDescription ? upg.effectDescription() : null,
+                formatNumber(upg.getCost()) + " Points"
+            ].filter(Boolean);
+            upg.container.innerHTML = lines.join("<br>");
+        }
+    });
+}
+
 function Idle(diff){
-    let pointsFromAutoclickers = PointUpgrades[3].level.mul(getTotalPointMultiplier()).mul((diff / 5)*PointUpgrades[3].effect().mul(PrestigeUpgBuyMultiplier("autoclicker")));
+    let pointsFromAutoclickers = PointUpgrades[3].level
+    .mul(getTotalPointMultiplier())
+    .mul((diff / 5)*PointUpgrades[3].effect().mul(PrestigeUpgBuyMultiplier("autoclicker")));
     game.points = game.points.add(pointsFromAutoclickers);
 }
 renderPointUpgrades();

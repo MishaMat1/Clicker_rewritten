@@ -9,8 +9,8 @@ const Automations = [
         return game.pointAuto.enabled;
     },
     getCost: function() {
-        let baseCost = new Decimal(100000);
-        return baseCost.mul(Decimal.pow(2, game.pointAuto.level));
+        let baseCost = new Decimal(1e5);
+        return baseCost.mul(Decimal.pow(1.75, game.pointAuto.level));
     },
     upgrade() {
     if(game.pointAuto.level >= (game.pointAuto.maxLevel)) return
@@ -66,7 +66,7 @@ function getPointAutoInterval() {
     if (hasPrestigeUpgrade(9)) {
     document.getElementById("automationButton").style.display = "inline-block";
     let base = 1
-    let reduction = 0.1
+    let reduction = 0.05
     let interval = base - game.pointAuto.level * reduction;
     return Math.max(0.05, interval);
 }
