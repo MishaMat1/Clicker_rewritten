@@ -22,6 +22,7 @@ function prestige() {
         document.getElementById("prestigeTabButton").style.display = "inline-block";
         let gain = GetPrestigeGain();
         game.prestigePoints = game.prestigePoints.add(gain);
+        game.prestigeResetAmount = game.prestigeResetAmount.add(1)
         prestigeReset();
         loadPrestigeUpgrades();
         const upgrades = document.getElementById("upgrades");

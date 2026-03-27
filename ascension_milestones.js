@@ -35,7 +35,7 @@ function loadAscensionMilestones() {
 function updateAscensionMilestones() {
     let updated = false;
     AscensionMilestones.forEach(milestone => {
-        if (!milestone.obtained && game.ascensionPoints.gte(milestone.requirement)) {
+        if (!milestone.obtained && game.TotalAscensionPoints.gte(milestone.requirement)) {
             milestone.obtained = true;
             updated = true;
         }

@@ -5,7 +5,9 @@ function ascendReset() {
     game.pointAuto.level = new Decimal(0)
     PrestigeUpgrades.forEach(upg => {
         if(!upg.permament) upg.bought = false})
-        PrestigeBuyables.forEach(buyable => buyable.level = new Decimal(0))
+    PrestigeBuyables.forEach(buyable => buyable.level = new Decimal(0))
+    ChargeMilestones.forEach(m => m.obtained = false)
+    game.prestigeResetAmount = new Decimal(0)
     }
 
 function GetAscensionGain(){
@@ -22,6 +24,7 @@ function ascend() {
         let gain = GetAscensionGain();
         game.ascensionPoints = game.ascensionPoints.add(gain);
         game.TotalAscensionPoints = game.TotalAscensionPoints.add(gain)
+        game.ascensionResetAmount = game.ascensionResetAmount.add(1)
         ascendReset();
         loadPrestigeUpgrades();
         loadAscensionUpgrades();
