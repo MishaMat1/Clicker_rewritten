@@ -37,3 +37,8 @@
     border: 2px solid darkgoldenrod;
     background-color: lightyellow;
 }
+#hard-reset {
+    color: white;
+    background-color: red;
+    border: 2px solid darkred;
+}

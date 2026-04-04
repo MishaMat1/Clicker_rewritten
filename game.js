@@ -1,4 +1,7 @@
+const CURRENT_VERSION = "1.2.1";
+
 const game = {
+    version: CURRENT_VERSION,
     points: new Decimal(0),
     prestigePoints: new Decimal(0),
     prestigeRequirement: new Decimal(1e6),
@@ -13,5 +16,14 @@ const game = {
         timer: 0,
         level: 0,
         maxLevel: 19,
-    }
+    },
+    pointUpgradeLevels: [],
+
+    prestigeUpgradesBought: [],
+    prestigeBuyableLevels: [],
+    chargeMilestones: [],
+
+    ascensionUpgradesBought: [],
+    ascensionMilestones: [],
+
 }

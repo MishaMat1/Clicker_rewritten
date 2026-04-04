@@ -32,9 +32,10 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
 <div id="autoclickerUpgrades"></div><br>
 
     Prestige: <span id="prestige">0</span><br>
-    <button onclick="prestige()">Prestige<br><span id="prestigeAmount">1M</span></button><br>
+    <button onclick="prestige()">Prestige<br><span id="prestigeAmount">1M</span></button><br><br>
     <div id="ascension-box" style="display: none;">Ascension: <span id="ascension">0</span><br>
-    <button onclick="ascend()">Ascension<br><span id="ascendAmount">1B PP</span></button></div>
+    <button onclick="ascend()">Ascension<br><span id="ascendAmount">1B PP</span></button></div><br>
+    <button id="hard-reset" onclick="resetGame()">Hard reset</button>
 </div>
 <div id="prestigeTab" class="tab" style="display:none;">
     <div class="subtabs">
@@ -76,7 +77,6 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
 </div>
     <script src="https://cdn.jsdelivr.net/npm/break_infinity.js@2/dist/break_infinity.min.js"></script>
     <script src="game.js"></script>
-    <script src="save.js"></script>
     <script src="tabs.js"></script>
     <script src="ui.js"></script>
     <script src="prestige.js"></script>
@@ -85,5 +85,6 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
     <script src="ascension_milestones.js"></script>
     <script src="main.js"></script>
     <script src="automation.js"></script>
+    <script src="save.js"></script>
 </body>
 </html>

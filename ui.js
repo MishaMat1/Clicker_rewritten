@@ -16,10 +16,10 @@ function updateSubtabUnlocks() {
 
 function updateUI(){
     UI.points.textContent = formatNumber(game.points);
-    UI.idle.textContent = formatNumber(PointUpgrades[3].level.mul(getTotalPointMultiplier()).div(5).mul(PointUpgrades[3].effect()).mul(PrestigeUpgBuyMultiplier("autoclicker")));
+    UI.idle.textContent = formatNumber(PointUpgrades[3].effect(3).mul(getTotalPointMultiplier()).div(5).mul(PrestigeUpgBuyMultiplier("autoclicker")));
     UI.prestige.textContent = formatNumber(game.prestigePoints);
     UI.charge.textContent = formatNumber(game.charge)
-    UI.chargeGen.textContent = formatNumber(new Decimal(1).mul(PrestigeUpgBuyMultiplier("charge")))
+    UI.chargeGen.textContent = formatNumber(new Decimal(1).mul(getChargeMultiplier()))
     UI.ascension.textContent = formatNumber(game.ascensionPoints)
 
     if (game.points.lt(game.prestigeRequirement)) {

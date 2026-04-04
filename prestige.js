@@ -1,13 +1,16 @@
 function prestigeReset() {
     game.points = new Decimal(0);
-    PointUpgrades.forEach(upg => upg.level = new Decimal(0));
-    if (hasAscensionMilestone(2)) {
-        PointUpgrades[3].level = new Decimal(1)
+    game.pointUpgradeLevels.forEach((_, i) => {
+        game.pointUpgradeLevels[i] = new Decimal(0);
+    });
+    if (hasAscensionMilestone(1)) {
+        game.pointUpgradeLevels[3] = new Decimal(1);
     }
 }
 
 function GetPrestigeGain(){
-    const prestigeMUltipliers = [PrestigeUpgBuyMultiplier("prestige"), ChargeMulti("prestige"), AscensionMulti("prestige"), AscensionUpgMultiplier("prestige")]
+    const prestigeMUltipliers = [PrestigeUpgBuyMultiplier("prestige"), ChargeMulti("prestige"), 
+        AscensionMulti("prestige"), AscensionUpgMultiplier("prestige")]
     let TotalPrestigeMulti = new Decimal(1)
     let pMultiplier = prestigeMUltipliers.reduce((total, multi) => total.mul(multi), TotalPrestigeMulti)
     if(game.points.gte(game.prestigeRequirement)){
@@ -25,12 +28,6 @@ function prestige() {
         game.prestigeResetAmount = game.prestigeResetAmount.add(1)
         prestigeReset();
         loadPrestigeUpgrades();
-        const upgrades = document.getElementById("upgrades");
-        const buyables = document.getElementById("buyables");
-        if (upgrades && buyables) {
-            upgrades.style.display = "block";
-            buyables.style.display = "none";
-        }
     }
 }
 
@@ -44,7 +41,7 @@ upgradeContainer.replaceChildren();
     upgradeContainer.appendChild(document.createElement("br"));
     PrestigeUpgrades.forEach((upg, index) => {
         let button = document.createElement("button");
-        if(upg.bought) {
+        if(game.prestigeUpgradesBought && game.prestigeUpgradesBought[index] === true) {
             button.innerHTML = upg.name + "<br>" + upg.description + "<br>Bought";
             if(upg.effectDescription) {
             button.innerHTML += "<br>" + upg.effectDescription();
@@ -69,11 +66,12 @@ if(anyUnlocked) {
 
 PrestigeBuyables.forEach((buyable, index) => {
     if(!buyable.unlocked()) return;
+    let level = game.prestigeBuyableLevels[index] || 0;
     let button = document.createElement("button");
     button.innerHTML =
         buyable.name + "<br>" +
         buyable.description + "<br>" +
-        "Level: " + buyable.level + "<br>" +
+        "Level: " + level + "<br>" +
         buyable.effectDescription() + "<br>" +
         formatNumber(buyable.costScaling()) + " PP";
     button.onclick = function() {
@@ -99,8 +97,7 @@ let PrestigeUpgrades = [
         description: "Triples your point gain.",
         type: "points",
         cost: new Decimal(1),
-        bought: false,
-        permament: false,
+        permanent: false,
         effect: function() {
             return new Decimal(3);
         },
@@ -111,8 +108,7 @@ let PrestigeUpgrades = [
         description: "x2.5 the effect of autoclickers.",
         type: "autoclicker",
         cost: new Decimal(3),
-        bought: false,
-        permament: false,
+        permanent: false,
         effect: function() {
             return new Decimal(2.5);
         },
@@ -122,24 +118,21 @@ let PrestigeUpgrades = [
         name: "Unlock Prestige Buyables",
         description: "Unlock prestige buyables.",
         cost: new Decimal(5),
-        bought: false,
-        permament: false
+        permanent: false
     },
     {
         id: 3,
         name: "Some qol",
         description: "Unlocks buy max",
         cost: new Decimal(25),
-        bought: false,
-        permament: true
+        permanent: true
     },
     {
         id: 4,
         name: "Another buyable",
         description: "Unlocks another prestige buyable",
         cost: new Decimal(100),
-        bought: false,
-        permament: false
+        permanent: false
      },
      {
         id: 5,
@@ -147,8 +140,7 @@ let PrestigeUpgrades = [
         description: "Autoclicker work at full power",
         type: "autoclicker",
         cost: new Decimal(250),
-        bought: false,
-        permament: false,
+        permanent: false,
         effect: function() {
             return new Decimal(2.5);
         },
@@ -159,8 +151,7 @@ let PrestigeUpgrades = [
         description: "Increases point gain based on your prestige points.",
         type: "points",
         cost: new Decimal(1000),
-        bought: false,
-        permament: false,
+        permanent: false,
         effect: function() {
             return Decimal.max(1, (Decimal.log(game.prestigePoints.pow(1.5), 2)));
         },
@@ -174,8 +165,7 @@ let PrestigeUpgrades = [
         description: "Increase compound base by 1. (base is 2)",
         type: "compound",
         cost: new Decimal(5000),
-        bought: false,
-        permament: false,
+        permanent: false,
         effect: function() {
             return new Decimal(1)
         },
@@ -186,8 +176,7 @@ let PrestigeUpgrades = [
         description: "Delays compound effect softcap by x1k",
         type: "SoftcapDelay",
         cost: new Decimal(10000),
-        bought: false,
-        permament: false,
+        permanent: false,
         effect: function() {
             return new Decimal(1000)
         }
@@ -198,8 +187,7 @@ let PrestigeUpgrades = [
         description: "Unlock some automation(yay)",
         type: "unlock",
         cost: new Decimal(25000),
-        bought: false,
-        permament: true
+        permanent: true
      },
      {
         id: 10,
@@ -207,8 +195,7 @@ let PrestigeUpgrades = [
         description: "Delay scaled level of compound by 25 (base is 25)",
         type: "ScalingDelay",
         cost: new Decimal(1e5),
-        bought: false,
-        permament: false,
+        permanent: false,
         effect: function() {
             return new Decimal(25)
         }
@@ -218,24 +205,21 @@ let PrestigeUpgrades = [
         name: "A new buyable",
         description: "Unlock a new prestige buyable!",
         cost: new Decimal(2e5),
-        bought: false,
-        permament: false
+        permanent: false
      },
      {
         id: 12,
         name: "Another one...",
         description: "Yeah another prestige buyable",
         cost: new Decimal(5e5),
-        bought: false,
-        permament: false
+        permanent: false
      },
      {
         id: 13,
         name: "A new feature.",
         description: "Unlock charge",
         cost: new Decimal(1e6),
-        bought: false,
-        permament: false,
+        permanent: false,
         effect: function(){ loadPrestigeCharge() }
      },
      {
@@ -243,16 +227,14 @@ let PrestigeUpgrades = [
         name: "Yay a buyable",
         description: "Yay a buyable",
         cost: new Decimal(1e7),
-        bought: false,
-        permament: false
+        permanent: false
      },
      {
         id: 15,
         name: "A new layer",
         description: "Unlock ascension",
         cost: new Decimal(1e8),
-        bought: false,
-        permament: true,
+        permanent: true,
         effect: () => { document.getElementById("ascension-box").style.display = "block" }
      }
 ];
@@ -267,7 +249,7 @@ let PrestigeBuyables = [
         level: new Decimal(0),
         ScaledLevel: new Decimal(100),
         costScaling: function() {
-            let level = this.level
+            let level = game.prestigeBuyableLevels[this.id] || new Decimal(0);
             let ScaledLevel = this.ScaledLevel
             if (level.lt(ScaledLevel)) {
             return new Decimal(1.5).pow(level).floor();
@@ -275,7 +257,7 @@ let PrestigeBuyables = [
             return new Decimal(1.75).pow(level.sub(ScaledLevel)).mul(new Decimal(1.5).pow(ScaledLevel)).floor();
     },
         effect: function() {
-            return new Decimal(1.5).pow(this.level);
+            return new Decimal(1.5).pow(game.prestigeBuyableLevels[this.id] || new Decimal(0));
         },
         effectDescription: function() {
             return "Currently: x" + formatNumber(this.effect());
@@ -293,7 +275,7 @@ let PrestigeBuyables = [
         level: new Decimal(0),
         ScaledLevel: new Decimal(100),
         costScaling: function() {
-            let level = this.level
+            let level = game.prestigeBuyableLevels[this.id] || new Decimal(0);
             let ScaledLevel = this.ScaledLevel
             if (level.lt(ScaledLevel)) {
             return new Decimal(1.5).pow(level).floor();
@@ -301,7 +283,7 @@ let PrestigeBuyables = [
             return new Decimal(1.75).pow(level.sub(ScaledLevel)).mul(new Decimal(1.5).pow(ScaledLevel)).floor();
         },
         effect: function() {
-            return new Decimal(1.2).pow(this.level);
+            return new Decimal(1.2).pow(game.prestigeBuyableLevels[this.id] || new Decimal(0));
         },
         effectDescription: function() {
             return "Currently: x" + formatNumber(this.effect());
@@ -319,7 +301,7 @@ let PrestigeBuyables = [
         level: new Decimal(0),
         ScaledLevel: new Decimal(50),
         costScaling: function() {
-            let level = this.level
+            let level = game.prestigeBuyableLevels[this.id] || new Decimal(0);
             let ScaledLevel = this.ScaledLevel
             if(level.lt(ScaledLevel)) {
                 return this.cost.mul(new Decimal(1.5).pow(level));
@@ -327,7 +309,7 @@ let PrestigeBuyables = [
                 return this.cost.mul(new Decimal(2).pow(level.sub(ScaledLevel)).mul(new Decimal(1.5).pow(ScaledLevel)))
         },
         effect: function() {
-            return new Decimal(10).pow(this.level)
+            return new Decimal(10).pow(game.prestigeBuyableLevels[this.id] || new Decimal(0))
         },
         effectDescription: function () {
             return "Currently: x" + formatNumber(this.effect())
@@ -343,7 +325,7 @@ let PrestigeBuyables = [
         level: new Decimal(0),
         ScaledLevel: new Decimal(25),
         costScaling: function() {
-            let level = this.level
+            let level = game.prestigeBuyableLevels[this.id] || new Decimal(0);
             let ScaledLevel = this.ScaledLevel
             if(level.lt(ScaledLevel)) {
                 return this.cost.mul(new Decimal(3).pow(level));
@@ -351,7 +333,7 @@ let PrestigeBuyables = [
                 return this.cost.mul(new Decimal(5).pow(level.sub(ScaledLevel)).mul(new Decimal(3).pow(ScaledLevel)))
         },
         effect: function() {
-            return new Decimal(0.1).mul(this.level)
+            return new Decimal(0.1).mul(game.prestigeBuyableLevels[this.id] || new Decimal(0))
         },
         effectDescription: function () {
            let eff = this.effect()
@@ -372,14 +354,15 @@ let PrestigeBuyables = [
         level: new Decimal(0),
         ScaledLevel: new Decimal(25),
         costScaling: function() {
-            let level = this.level
+            let level = game.prestigeBuyableLevels[this.id] || new Decimal(0);
+            let ScaledLevel = this.ScaledLevel
             if(level.lt(this.ScaledLevel)) {
                 return this.cost.mul(new Decimal(10).pow(level))
             } 
                 return this.cost.mul(new Decimal(20).pow(level.sub(ScaledLevel)).mul(new Decimal(10).pow(ScaledLevel)))
         },
         effect: function() {
-            return new Decimal(2).pow(this.level)
+            return new Decimal(2).pow(game.prestigeBuyableLevels[this.id] || new Decimal(0))
         },
         effectDescription: function() {
             return "Currently x" + formatNumber(this.effect())
@@ -389,9 +372,9 @@ let PrestigeBuyables = [
 ]
 
 function PrestigeUpgBuyMultiplier(type) {
-    let mult = new Decimal(1); 
-    PrestigeUpgrades.forEach(upg => {
-        if (upg.bought && upg.effect && upg.type === type) {
+    let mult = new Decimal(1);
+    PrestigeUpgrades.forEach((upg,id) => {
+        if (game.prestigeUpgradesBought && game.prestigeUpgradesBought[id] === true && upg.effect && upg.type === type) {
             mult = mult.mul(upg.effect());
         }
     });
@@ -405,8 +388,8 @@ function PrestigeUpgBuyMultiplier(type) {
 
 function PrestigeUpgBuyAddition(type) {
     let add = new Decimal(0); 
-    PrestigeUpgrades.forEach(upg => {
-        if (upg.bought && upg.effect && upg.type === type) {
+    PrestigeUpgrades.forEach((upg,id) => {
+        if (game.prestigeUpgradesBought && game.prestigeUpgradesBought[id] === true  && upg.effect && upg.type === type) {
             add = add.add(upg.effect());
         }
     });
@@ -420,9 +403,9 @@ function PrestigeUpgBuyAddition(type) {
 
 function buyPrestigeUpgrade(id) {
     let upg = PrestigeUpgrades[id];
-    if(game.prestigePoints.gte(upg.cost) && !upg.bought) {
+    if(game.prestigePoints.gte(upg.cost) && game.prestigeUpgradesBought[id] === false) {
         game.prestigePoints = game.prestigePoints.sub(upg.cost);
-        upg.bought = true;
+        game.prestigeUpgradesBought[id] = true;
         if(upg.effect) upg.effect();
         loadPrestigeUpgrades();
         renderPointUpgrades();
@@ -434,7 +417,7 @@ function buyPrestigeBuyable(id) {
     let cost = buyable.costScaling()
     if(game.prestigePoints.gte(cost)) {
         game.prestigePoints = game.prestigePoints.sub(cost)
-        buyable.level = buyable.level.add(1)
+        game.prestigeBuyableLevels[id] = game.prestigeBuyableLevels[id].add(1)
         if(buyable.effect) buyable.effect();
         loadPrestigeUpgrades();
         renderPointUpgrades();
@@ -453,7 +436,7 @@ function buyPrestigeBuyableMax(index) {
             let c = upg.costScaling();
             if (prestigePoints.lt(totalCost.add(c))) break;
             totalCost = totalCost.add(c);
-            upg.level = upg.level.add(1);
+            game.prestigeBuyableLevels[index] = game.prestigeBuyableLevels[index].add(1);
             bulk *= 2
         }
 
@@ -468,5 +451,5 @@ function buyPrestigeBuyableMax(index) {
 
 
 function hasPrestigeUpgrade(id) {
-    return !!PrestigeUpgrades.find(u => u.id === id)?.bought
+    return game.prestigeUpgradesBought?.[id] === true;
 }

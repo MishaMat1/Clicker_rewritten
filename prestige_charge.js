@@ -1,9 +1,8 @@
 let ChargeMilestones = [
     {
-        id: 1,
+        id: 0,
         name: "Charged points",
         requirement: new Decimal(1),
-        obtained: false,
         type: "points",
         effect: function(){
             return Decimal.max(1, Decimal.log(game.charge, 2))
@@ -13,10 +12,9 @@ let ChargeMilestones = [
         }
     },
     {
-        id: 2,
+        id: 1,
         name: "Charged prestige",
         requirement: new Decimal(100),
-        obtained: false,
         type: "prestige",
         effect: function() {
             return Decimal.max(1, Decimal.log(game.charge, 3))
@@ -27,10 +25,9 @@ let ChargeMilestones = [
     },
     // POSSIBLY FUTURE MILESTONE (its too op for now so ill add it later)
     // { 
-    //     id: 3,
+    //     id: 2,
     //     name: "Charged compound",
     //     requirement: new Decimal(1000),
-    //     obtained: false,
     //     type: "compound",
     //     effect: function(){
     //         return new Decimal(game.charge.div(1e5))
@@ -47,8 +44,14 @@ function formatEffect(eff) {
         : eff.toNumber().toFixed(2);
 }
 
+function getChargeMultiplier() {
+    const chargeMultipliers = [PrestigeUpgBuyMultiplier("charge"), AscensionUpgMultiplier("charge")]
+    let TotalChargeMulti = new Decimal(1)
+    return chargeMultipliers.reduce((total, multi) => total.mul(multi), TotalChargeMulti)
+}
+
 function chargeGen(diff) {
-    let chargeMulti = new Decimal(1).mul(diff).mul(PrestigeUpgBuyMultiplier("charge"))
+    let chargeMulti = new Decimal(1).mul(diff).mul(getChargeMultiplier())
     game.charge = game.charge.add(chargeMulti)
 }
 
@@ -69,7 +72,7 @@ function loadPrestigeCharge() {
 function updateMilestoneButton(button, milestone) {
     let text = milestone.name + "<br>" +
                "Requirement: " + formatNumber(milestone.requirement) + " charge" +
-               (milestone.obtained ? " (Obtained)" : "") +
+               (game.chargeMilestones[milestone.id] ? " (Obtained)" : "") +
                "<br>" + milestone.effectDescription();
     button.innerHTML = text;
 }
@@ -77,16 +80,19 @@ function updateMilestoneButton(button, milestone) {
 // --- Check milestones for completion ---
 function updateChargeMilestones() {
     let updated = false;
-    ChargeMilestones.forEach(milestone => {
-        if (!milestone.obtained && game.charge.gte(milestone.requirement)) {
-            milestone.obtained = true;
+
+    ChargeMilestones.forEach((milestone, i) => {
+
+        if (!game.chargeMilestones[i] &&
+            game.charge.gte(milestone.requirement)) {
+
+            game.chargeMilestones[i] = true;
             updated = true;
         }
-    })
-    if (updated) {
-        loadPrestigeCharge();
-    }
-};
+    });
+
+    if (updated) loadPrestigeCharge();
+}
     // Reload UI if any milestone changed
     
 
@@ -103,7 +109,7 @@ function updateEffectDescription() {
 function ChargeMulti(type) {
     let mult = new Decimal(1); 
     ChargeMilestones.forEach(milestone => {
-        if (milestone.obtained && milestone.effect && milestone.type === type) {
+        if (game.chargeMilestones[milestone.id] && milestone.effect && milestone.type === type) {
             mult = mult.mul(milestone.effect());
         }
     })
@@ -113,7 +119,7 @@ function ChargeMulti(type) {
 function ChargeAdd(type){
     let add = new Decimal(0); 
     ChargeMilestones.forEach(milestone => {
-        if (milestone.obtained && milestone.effect && milestone.type === type) {
+        if (game.chargeMilestones[milestone.id] && milestone.effect && milestone.type === type) {
             add = add.add(milestone.effect());
         }
     })

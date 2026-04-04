@@ -51,7 +51,8 @@ function formatNumber(decimal) {
 }
 
 function getTotalPointMultiplier() {
-    const multipliers = [PointMultiplier("points"), PrestigeUpgBuyMultiplier("points"), ChargeMulti("points"), AscensionUpgMultiplier("points")];
+    const multipliers = [PointMultiplier("points"), PrestigeUpgBuyMultiplier("points"), 
+        ChargeMulti("points"), AscensionUpgMultiplier("points"),  AscensionMulti("points")];
     let TotalPointMultiplier = new Decimal(1);
     return multipliers.reduce((total, multiplier) => total.mul(multiplier), TotalPointMultiplier);
 }
@@ -63,7 +64,6 @@ function pointClick(){
 let PointUpgrades = [
     {
         name: "Click Power",
-        level: new Decimal(0),
         description: "+1 per click per level",
         baseCost: new Decimal(10),
         costScaling: new Decimal(1.25),
@@ -71,8 +71,8 @@ let PointUpgrades = [
         SuperScaledLevel: new Decimal(250),
         type: "points",
         category: "click",
-        getCost: function() {
-            let level = this.level;
+        getCost: function(index) {
+            let level = game.pointUpgradeLevels[index];
             let scaled = this.ScaledLevel;
             let superScaled = this.SuperScaledLevel;
 
@@ -94,17 +94,16 @@ let PointUpgrades = [
             return cost;
         },
 
-        effect: function() {
-            return new Decimal(1).add(this.level);
+        effect: function(index) {
+            return new Decimal(1).add(game.pointUpgradeLevels[index]);
         },
-        effectDescription: function() {
-            return "Currently: +" + formatNumber(this.effect()) + " per click";
+        effectDescription: function(index) {
+            return "Currently: +" + formatNumber(this.effect(index)) + " per click";
         }
     },
 
     {
         name: "Multiplier",
-        level: new Decimal(0),
         description: "+ x1 to point multiplier per level",
         baseCost: new Decimal(50),
         costScaling: new Decimal(1.5),
@@ -112,8 +111,8 @@ let PointUpgrades = [
         SuperScaledLevel: new Decimal(250),
         type: "points",
         category: "multiplier",
-        getCost: function() {
-            let level = this.level;
+        getCost: function(index) {
+            let level = game.pointUpgradeLevels[index];
             let scaled = this.ScaledLevel;
             let superScaled = this.SuperScaledLevel;
 
@@ -135,23 +134,22 @@ let PointUpgrades = [
             return cost;
         },
 
-        effect: function() {
-            return new Decimal(1).add(this.level);
+        effect: function(index) {
+            return new Decimal(1).add(game.pointUpgradeLevels[index]);
         },
-        effectDescription: function() {
-            return "Currently: x" + formatNumber(this.effect());
+        effectDescription: function(index) {
+            return "Currently: x" + formatNumber(this.effect(index)) + " to points";
         }
     },
 
     {
         name: "Compound",
-        level: new Decimal(0),
         description: function() {
             let base = this.base.add(this.getBase())
         if(base.lt(1000)) {
-            return "x" + base.toNumber().toFixed(2) + " per level"
+            return "x" + base.toNumber().toFixed(2) + " points per level"
         } else {
-            return "x" + formatNumber(base) + " per level"
+            return "x" + formatNumber(base) + " points per level"
         }
         },
         baseCost: new Decimal(1000),
@@ -168,8 +166,8 @@ let PointUpgrades = [
         strenght: new Decimal(0.5),
         type: "points",
         category: "compound",
-        getCost: function() {
-            let level = this.level;
+        getCost: function(index) {
+            let level = game.pointUpgradeLevels[index];
             let scaled = this.ScaledLevel.add(PrestigeUpgBuyMultiplier("ScalingDelay"));
             let superScaled = this.SuperScaledLevel;
 
@@ -191,25 +189,25 @@ let PointUpgrades = [
             return cost;
         },
 
-        effect: function() {
+        effect: function(index) {
             let base;
             let strenght = this.strenght;
             let softcapStart = this.softcapStart.mul(PrestigeUpgBuyMultiplier("SoftcapDelay").add(1));
             base = this.base.add(this.getBase())
-            let value = base.pow(this.level);
+            let value = base.pow(game.pointUpgradeLevels[index]);
             let cap = softcapStart;
             if (value.gt(cap)) {
                 value = value.div(cap).pow(strenght).mul(cap);
             }
             return value;
         },
-        effectDescription: function() {
+        effectDescription: function(index) {
         let base = this.base.add(this.getBase())
-        let uncapped = base.pow(this.level);
+        let uncapped = base.pow(game.pointUpgradeLevels[index]);
         let softcapStart = this.softcapStart.mul(PrestigeUpgBuyMultiplier("SoftcapDelay").add(1));
         let cap = softcapStart;
 
-            let text = "Currently: x" + formatNumber(this.effect());
+            let text = "Currently: x" + formatNumber(this.effect(index));
 
             if (uncapped.gt(cap)) {
                 text += " (softcapped)";
@@ -220,7 +218,6 @@ let PointUpgrades = [
 
     {
         name: "Autoclicker",
-        level: new Decimal(0),
         description: function() {
             if (hasPrestigeUpgrade(5)){
                 return "1 autoclicker = 1 cps"
@@ -236,8 +233,8 @@ let PointUpgrades = [
         SuperScaledLevel: new Decimal(1000),
         type: "autoclicker",
         category: "autoclicker",
-        getCost: function() {
-            let level = this.level;
+        getCost: function(index) {
+            let level = game.pointUpgradeLevels[index];
             let scaled = this.ScaledLevel;
             let superScaled = this.SuperScaledLevel;
 
@@ -259,22 +256,22 @@ let PointUpgrades = [
             return cost;
         },
 
-        effect: function() {
-            return new Decimal(1).add(this.level);
+        effect: function(index) {
+            return new Decimal(0).add(game.pointUpgradeLevels[index]);
         },
-        effectDescription: function() {
-            return "Currently: " + formatNumber(this.effect().minus(1)) + " autoclickers";
+        effectDescription: function(index) {
+            return "Currently: " + formatNumber(this.effect(index)) + " autoclickers";
         }
     }
 ];
 
 function buyPointUpgrade(index) {
     let upg = PointUpgrades[index];
-    let cost = upg.getCost();
+    let cost = upg.getCost(index);
     if (game.points.gte(cost)) {
         game.points = game.points.sub(cost);
-        upg.level = upg.level.add(1);
-        upg.effect();
+        game.pointUpgradeLevels[index] = game.pointUpgradeLevels[index].add(1);
+        upg.effect(index);
     }
 }
 
@@ -285,7 +282,7 @@ function buyPointUpgradeMax(index) {
 
     while (true) {
 
-        let cost = upg.getCost();
+        let cost = upg.getCost(index);
         if (points.lt(cost)) break;
 
         let bulk = 1;
@@ -293,11 +290,11 @@ function buyPointUpgradeMax(index) {
         let totalCost = new Decimal(0);
 
         for (let i = 0; i < bulk; i++) {
-            let c = upg.getCost();
+            let c = upg.getCost(index);
             if (points.lt(totalCost.add(c))) break;
 
             totalCost = totalCost.add(c);
-            upg.level = upg.level.add(1);
+            game.pointUpgradeLevels[index] = game.pointUpgradeLevels[index].add(1);
             bulk *= 2
         }
 
@@ -310,9 +307,12 @@ function buyPointUpgradeMax(index) {
 
 function PointMultiplier(type) {
     let mult = new Decimal(1); 
-    PointUpgrades.forEach(upg => {
-        if (upg.level > 0 && upg.type === type) {
-            mult = mult.mul(upg.effect());
+    PointUpgrades.forEach((upg, index) => {
+
+        let level = game.pointUpgradeLevels[index];
+
+        if (level.gt(0) && upg.type === type) {
+            mult = mult.mul(upg.effect(index));
         }
     });
     return mult;
@@ -331,9 +331,9 @@ function renderPointUpgrades() {
 const lines = [
     upg.name,
     typeof upg.description === "function" ? upg.description() : upg.description,
-    "Level: " + formatNumber(upg.level),
-    upg.effectDescription ? upg.effectDescription() : null,
-    formatNumber(upg.getCost()) + " Points"
+    "Level: " + formatNumber(game.pointUpgradeLevels[index]),
+    upg.effectDescription ? upg.effectDescription(index) : null,
+    formatNumber(upg.getCost(index)) + " Points"
 ].filter(Boolean);
 
 button.innerHTML = lines.join("<br>");
@@ -366,14 +366,14 @@ button.innerHTML = lines.join("<br>");
 }
 
 function updatePointUpgradesUI() {
-    PointUpgrades.forEach((upg) => {
+    PointUpgrades.forEach((upg, index) => {
         if (upg.container) {
             const lines = [
                 upg.name,
                 typeof upg.description === "function" ? upg.description() : upg.description,
-                "Level: " + formatNumber(upg.level),
-                upg.effectDescription ? upg.effectDescription() : null,
-                formatNumber(upg.getCost()) + " Points"
+                "Level: " + formatNumber(game.pointUpgradeLevels[index]),
+                upg.effectDescription ? upg.effectDescription(index) : null,
+                formatNumber(upg.getCost(index)) + " Points"
             ].filter(Boolean);
             upg.container.innerHTML = lines.join("<br>");
         }
@@ -381,9 +381,8 @@ function updatePointUpgradesUI() {
 }
 
 function Idle(diff){
-    let pointsFromAutoclickers = PointUpgrades[3].level
+    let pointsFromAutoclickers = PointUpgrades[3].effect(3)
     .mul(getTotalPointMultiplier())
-    .mul((diff / 5)*PointUpgrades[3].effect().mul(PrestigeUpgBuyMultiplier("autoclicker")));
+    .mul((diff / 5)*(PrestigeUpgBuyMultiplier("autoclicker")));
     game.points = game.points.add(pointsFromAutoclickers);
 }
-renderPointUpgrades();
