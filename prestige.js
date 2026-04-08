@@ -153,7 +153,11 @@ let PrestigeUpgrades = [
         cost: new Decimal(1000),
         permanent: false,
         effect: function() {
-            return Decimal.max(1, (Decimal.log(game.prestigePoints.pow(1.5), 2)));
+            if (hasAscensionUpgrade(6)) {
+                return game.prestigePoints.pow(0.6)
+            } else {
+                return Decimal.max(1, (Decimal.log(game.prestigePoints.pow(1.5), 2)));
+            }
         },
         effectDescription: function() {
             return "Currently: x" + formatNumber(this.effect());
@@ -187,7 +191,8 @@ let PrestigeUpgrades = [
         description: "Unlock some automation(yay)",
         type: "unlock",
         cost: new Decimal(25000),
-        permanent: true
+        permanent: true,
+        effect: function() { generateAutomationUI();}
      },
      {
         id: 10,

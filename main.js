@@ -7,13 +7,21 @@ function gameLoop() {
 
     game.pointAuto.timer += diff;
 
-let interval = getPointAutoInterval();
+let PointInterval = getPointAutoInterval();
+let PrestigeInterval = getPrestigeAutoInterval();
 
-if (game.pointAuto.enabled && game.pointAuto.timer >= interval) {
+if (game.pointAuto.enabled && game.pointAuto.timer >= PointInterval) {
     game.pointAuto.timer = 0;
 
     for (let i = 0; i < PointUpgrades.length; i++) {
         buyPointUpgradeMax(i);
+    }
+}
+if (game.prestigeAuto.enabled && game.prestigeAuto.timer >= PrestigeInterval) {
+    game.prestigeAuto.timer = 0;
+    
+    for (let i = 0; i < PrestigeBuyables.length; i++) {
+        buyPrestigeBuyableMax(i);
     }
 }
 
@@ -52,7 +60,7 @@ function formatNumber(decimal) {
 
 function getTotalPointMultiplier() {
     const multipliers = [PointMultiplier("points"), PrestigeUpgBuyMultiplier("points"), 
-        ChargeMulti("points"), AscensionUpgMultiplier("points"),  AscensionMulti("points")];
+        ChargeMulti("points"), AscensionUpgMultiplier("points")];
     let TotalPointMultiplier = new Decimal(1);
     return multipliers.reduce((total, multiplier) => total.mul(multiplier), TotalPointMultiplier);
 }
@@ -64,7 +72,10 @@ function pointClick(){
 let PointUpgrades = [
     {
         name: "Click Power",
-        description: "+1 per click per level",
+        description: function() {
+            let base = new Decimal(1).mul(AscensionUpgMultiplier("upgrade-boost"))
+            return "+" + formatNumber(base) + " points per click"
+    },
         baseCost: new Decimal(10),
         costScaling: new Decimal(1.25),
         ScaledLevel: new Decimal(100),
@@ -95,7 +106,7 @@ let PointUpgrades = [
         },
 
         effect: function(index) {
-            return new Decimal(1).add(game.pointUpgradeLevels[index]);
+            return new Decimal(1).add(game.pointUpgradeLevels[index]).mul(AscensionUpgMultiplier("upgrade-boost"));
         },
         effectDescription: function(index) {
             return "Currently: +" + formatNumber(this.effect(index)) + " per click";

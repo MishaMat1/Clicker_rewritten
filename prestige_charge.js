@@ -75,6 +75,8 @@ function updateMilestoneButton(button, milestone) {
                (game.chargeMilestones[milestone.id] ? " (Obtained)" : "") +
                "<br>" + milestone.effectDescription();
     button.innerHTML = text;
+    button.classList.remove("obtained", "unobtained");
+    button.classList.add(game.chargeMilestones[milestone.id] ? "obtained" : "unobtained");
 }
 
 // --- Check milestones for completion ---

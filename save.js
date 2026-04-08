@@ -17,7 +17,7 @@ function loadGame() {
     }
 
     if (!game.version)
-    game.version = "1.2.1";
+    game.version = "1.3.0";
 
     if (compareVersions(game.version, CURRENT_VERSION) < 0)
         migrateSave(game.version);
@@ -73,6 +73,15 @@ function compareVersions(v1, v2) {
 function migrateSave(oldVersion) {
     console.log("Migrating save from", oldVersion, "to", CURRENT_VERSION);
     game.version = CURRENT_VERSION;
+        if (compareVersions(oldVersion, "1.3.0") < 0) {
+            if(!game.prestigeAuto)
+                game.prestigeAuto = {
+                    enabled: false,
+                    timer: 0,
+                    level: 0,
+                    maxLevel: 19
+                };
+        }
 }
 
 function DecimalConverter(){

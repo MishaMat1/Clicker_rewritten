@@ -1,4 +1,4 @@
-const CURRENT_VERSION = "1.2.1";
+const CURRENT_VERSION = "1.3.0";
 
 const game = {
     version: CURRENT_VERSION,
@@ -12,6 +12,12 @@ const game = {
     ascensionResetAmount: new Decimal(0),
     ascendRequirement: new Decimal(1e9),
     pointAuto: {
+        enabled: false,
+        timer: 0,
+        level: 0,
+        maxLevel: 19,
+    },
+    prestigeAuto: {
         enabled: false,
         timer: 0,
         level: 0,

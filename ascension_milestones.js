@@ -1,7 +1,7 @@
 let AscensionMilestones = [
     {
         id: 0,
-        name: "1 total ascension",
+        name: "1 total ascension points",
         description: "Welcome to ascension! Lets start with x2 PP",
         requirement: new Decimal(1),
         obtained: false,
@@ -12,47 +12,53 @@ let AscensionMilestones = [
     },
     {
         id: 1,
-        name: "5 total ascension",
+        name: "5 total ascension points",
         description: "Keep 1 autoclicker at prestige",
         requirement: new Decimal(5),
         obtained: false
     },
+    
     {
         id: 2,
-        name: "10 total ascension",
-        description: "Boost points based on ascension resets amount",
-        requirement: new Decimal(10),
-        formula: new Decimal(0.6),
-        obtained: false,
-        type: "points",
-        effect() {
-            return game.ascensionResetAmount.pow(this.formula)
-        },
-        effectDescription() {
-            return "Currently: x" + formatEffect(this.effect());
-        }
-    },
-    {
-        id: 3,
-        name: "20 total ascension",
+        name: "20 total ascension points",
         description: "Keep automation at 0.5s on ascension reset",
         requirement: new Decimal(20),
         obtained: false
     },
     {
-        id: 4,
-        name: "50 total ascension",
-        description: "Boost prestige points based on ascension resets amount",
+        id: 3,
+        name: "50 total ascension points",
+        description: "Keep charge unlock upgrade",
         requirement: new Decimal(50),
         obtained: false,
-        type: "prestige",
-        formula: new Decimal(0.5),
-        effect() {
-            return game.ascensionResetAmount.pow(this.formula)
-        },
-        effectDescription() {
-            return "Currently: x" + formatEffect(this.effect());
-        }
+    },
+    {
+        id: 4,
+        name: "100 total ascension points",
+        description: "Point upgrades auto is no longer reset on ascension",
+        requirement: new Decimal(100),
+        obtained: false
+    },
+    {
+        id: 5,
+        name: "200 total ascension points",
+        description: "Unlock prestige buyables autobuyer",
+        requirement: new Decimal(200),
+        obtained: false
+    },
+    {
+        id: 6,
+        name: "500 total ascension points",
+        description: "Keep prestige upgrades on ascension",
+        requirement: new Decimal(500),
+        obtained: false
+    },
+    {
+        id: 7,
+        name: "1K total ascension points",
+        description: "Idk yet",
+        requirement: new Decimal(1000),
+        obtained: false
     }
 ]
 
@@ -72,6 +78,8 @@ function updateAscMilestoneDesc(button, milestone) {
     let text = milestone.name + "<br>" +
                milestone.description + (milestone.obtained ? " (Obtained)" : "")
     button.innerHTML = text;
+    button.classList.remove("obtained", "unobtained");
+    button.classList.add(milestone.obtained ? "obtained" : "unobtained");
     if(milestone.effectDescription) {
             button.innerHTML += "<br>" + milestone.effectDescription();
         }
@@ -85,8 +93,11 @@ function updateAscensionMilestones() {
             updated = true;
         }
     })
+
+
     if (updated) {
         loadAscensionMilestones();
+        generateAutomationUI();
     }
 }
 

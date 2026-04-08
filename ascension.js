@@ -2,9 +2,13 @@ function ascendReset() {
     game.points = new Decimal(0)
     game.prestigePoints = new Decimal(0)
     game.charge = new Decimal(0)
-    if(hasAscensionMilestone(3)) {
-        game.pointAuto.level = new Decimal(10)
-    } else game.pointAuto.level = new Decimal(0)
+    if(hasAscensionMilestone(4)) {
+        game.pointAuto.level = 19
+    } else if(hasAscensionMilestone(2)) {
+            game.pointAuto.level = 10
+    } else {
+        game.pointAuto.level = 0
+    }
     game.pointUpgradeLevels.forEach((_, i) => {
         game.pointUpgradeLevels[i] = new Decimal(0);
     });
@@ -22,7 +26,7 @@ function GetAscensionGain(){
     if(game.prestigePoints.gte(game.ascendRequirement)){
         let ratio = game.prestigePoints.div(game.ascendRequirement.div(10));
         let AscendLogGain = ratio.log10()
-        return new Decimal(AscendLogGain).pow(1.25).floor();
+        return new Decimal(AscendLogGain).pow(1.5).floor();
     }
 }
 
@@ -103,6 +107,53 @@ let AscensionUpgrades = [
         effect() {
             return new Decimal(2)
         }
+    },
+    {
+        id: 3,
+        name: "Less useless",
+        description: "Multiplier boosts click power",
+        type: "upgrade-boost",
+        cost: new Decimal(5),
+        permament: false,
+        effect() {
+            return PointUpgrades[1].effect(1)
+        }
+    },
+    {
+        id: 4,
+        name: "Ascension points boost",
+        description: "Boost points based on ascension resets amount",
+        cost: new Decimal(10),
+        formula: new Decimal(0.6),
+        type: "points",
+        effect() {
+            return game.ascensionResetAmount.pow(this.formula)
+        },
+        effectDescription() {
+            return "Currently: x" + formatEffect(this.effect());
+        }
+    },
+    {
+        id: 5,
+        name: "Ascension prestige boost",
+        description: "Boost prestige points based on ascension resets amount",
+        cost: new Decimal(20),
+        formula: new Decimal(0.5),
+        type: "prestige",
+        effect() {
+            return game.ascensionResetAmount.pow(this.formula)
+        },
+        effectDescription() {
+            return "Currently: x" + formatEffect(this.effect());
+        }
+    },
+    {
+        id: 6,
+        name: "Better formula",
+        description: "<b>Dynamic point boost</b> uses a better formula",
+        type: "points",
+        cost: new Decimal(30),
+        permament: false
     }
 ]
 
@@ -126,4 +177,8 @@ function AscensionUpgMultiplier(type) {
         }
     });
     return mult;
+}
+
+function hasAscensionUpgrade(id) {
+    return game.ascensionUpgradesBought?.[id] === true;
 }
