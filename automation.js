@@ -1,5 +1,3 @@
-document.getElementById("automationButton").style.display = "inline-block";
-
 const Automations = [
 {
     id: "pointUpgrades",

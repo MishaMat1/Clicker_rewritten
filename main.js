@@ -6,6 +6,7 @@ function gameLoop() {
     lastUpdate = now;
 
     game.pointAuto.timer += diff;
+    game.prestigeAuto.timer += diff;
 
 let PointInterval = getPointAutoInterval();
 let PrestigeInterval = getPrestigeAutoInterval();

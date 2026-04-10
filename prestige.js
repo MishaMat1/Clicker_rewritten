@@ -192,7 +192,9 @@ let PrestigeUpgrades = [
         type: "unlock",
         cost: new Decimal(25000),
         permanent: true,
-        effect: function() { generateAutomationUI();}
+        effect: function() { 
+            document.getElementById("automationButton").style.display = "inline-block";
+            generateAutomationUI();}
      },
      {
         id: 10,
@@ -224,7 +226,8 @@ let PrestigeUpgrades = [
         name: "A new feature.",
         description: "Unlock charge",
         cost: new Decimal(1e6),
-        permanent: false,
+        permanent() { if(!hasAscensionMilestone(3)) return true; 
+            else return false },
         effect: function(){ loadPrestigeCharge() }
      },
      {

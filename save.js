@@ -40,6 +40,9 @@ function loadGame() {
     if(game.ascensionResetAmount.gte(1)) {
         document.getElementById("ascendTabButton").style.display = "inline-block";
     }
+    if(hasPrestigeUpgrade(9)) {
+        document.getElementById("automationButton").style.display = "inline-block";
+    }
 }
 
 function resetGame() {

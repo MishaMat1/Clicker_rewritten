@@ -12,9 +12,11 @@ function ascendReset() {
     game.pointUpgradeLevels.forEach((_, i) => {
         game.pointUpgradeLevels[i] = new Decimal(0);
     });
+    if(!hasAscensionMilestone(6)) {
    game.prestigeUpgradesBought = game.prestigeUpgradesBought.map((bought, i) => {
     return PrestigeUpgrades[i] && PrestigeUpgrades[i].permanent ? bought : false;
    });
+}
     game.prestigeBuyableLevels.forEach((_, i) => {
         game.prestigeBuyableLevels[i] = new Decimal(0);
     });
@@ -24,9 +26,8 @@ function ascendReset() {
 
 function GetAscensionGain(){
     if(game.prestigePoints.gte(game.ascendRequirement)){
-        let ratio = game.prestigePoints.div(game.ascendRequirement.div(10));
-        let AscendLogGain = ratio.log10()
-        return new Decimal(AscendLogGain).pow(1.5).floor();
+        let AscendGain = game.prestigePoints.div(game.ascendRequirement).pow(0.4).floor();
+        return new Decimal(AscendGain)
     }
 }
 
