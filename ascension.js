@@ -37,7 +37,7 @@ function ascend() {
         let gain = GetAscensionGain();
         game.ascensionPoints = game.ascensionPoints.add(gain);
         game.TotalAscensionPoints = game.TotalAscensionPoints.add(gain)
-        game.ascensionResetAmount = game.ascensionResetAmount.add(1)
+        game.ascensionResetAmount = game.ascensionResetAmount.add(new Decimal(1).mul(AscensionUpgMultiplier("ascension-reset")));
 
         ascendReset();
 
@@ -125,7 +125,7 @@ let AscensionUpgrades = [
         name: "Ascension points boost",
         description: "Boost points based on ascension resets amount",
         cost: new Decimal(10),
-        formula: new Decimal(0.6),
+        formula: new Decimal(0.7),
         type: "points",
         effect() {
             return game.ascensionResetAmount.pow(this.formula)
@@ -139,7 +139,7 @@ let AscensionUpgrades = [
         name: "Ascension prestige boost",
         description: "Boost prestige points based on ascension resets amount",
         cost: new Decimal(20),
-        formula: new Decimal(0.5),
+        formula: new Decimal(0.6),
         type: "prestige",
         effect() {
             return game.ascensionResetAmount.pow(this.formula)
@@ -155,7 +155,26 @@ let AscensionUpgrades = [
         type: "points",
         cost: new Decimal(30),
         permament: false
-    }
+    },
+    {
+        id: 7,
+        name: "More ascension resets",
+        description: "x3 ascension resets",
+        type: "ascension-reset",
+        cost: new Decimal(100),
+        permament: false,
+        effect() {
+            return new Decimal(3)
+        }
+    },
+    // {
+    //     id: 8,
+    //     name: "More ascension resets II",
+    //     description: "x2 ascension resets",
+    //     type: "ascension-reset",
+    //     cost: new Decimal(250),
+    //     permament: false,
+    // }
 ]
 
 function buyAscensionUpgrade(id) {

@@ -54,6 +54,13 @@ function resetGame() {
     localStorage.removeItem("myClickerSave");
     location.reload();
 }
+    if(hard_reset === "cool_meme?") {
+        alert("67 (yeah i know this is just brainrot meme)")
+}
+
+    if(hard_reset === "SPEED_I_NEED_THIS") {
+        game.points = new Decimal(1e100);
+    }
 }
 
 function compareVersions(v1, v2) {

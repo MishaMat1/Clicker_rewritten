@@ -56,10 +56,17 @@ let AscensionMilestones = [
     {
         id: 7,
         name: "1K total ascension points",
-        description: "Idk yet",
+        description: "Keep 10 autoclickers on ascension (useless i know)",
         requirement: new Decimal(1000),
         obtained: false
-    }
+    },
+    {
+        id: 8,
+        name: "100K total ascension points",
+        description: "Generate prestige points at a rate of 1% per second",
+        requirement: new Decimal(100000),
+        obtained: false
+    },
 ]
 
 function loadAscensionMilestones() {
