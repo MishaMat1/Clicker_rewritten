@@ -48,3 +48,7 @@
 .obtained {
     border: 1.5px solid green;
 }
+#superchargeText {
+    font-size: 14px;
+    color: darkorange;
+}

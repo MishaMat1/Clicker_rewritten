@@ -6,6 +6,7 @@ let AscensionMilestones = [
         requirement: new Decimal(1),
         obtained: false,
         type: "prestige",
+        effectType: "multiplier",
         effect() {
             return new Decimal(2)
         }

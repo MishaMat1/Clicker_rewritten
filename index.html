@@ -31,8 +31,8 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
 <div id="compoundUpgrades"></div><br>
 <div id="autoclickerUpgrades"></div><br>
 
-    Prestige: <span id="prestige">0</span><br>
-    <button onclick="prestige()">Prestige<br><span id="prestigeAmount">1M</span></button><br><br>
+    Prestige: <span class="prestigeDisplay">0</span><br>
+    <button onclick="prestige()">Prestige<br><span id="prestigeAmount">1M points</span></button><br><br>
     <div id="ascension-box" style="display: none;">Ascension: <span id="ascension">0</span><br>
     <button onclick="ascend()">Ascension<br><span id="ascendAmount">1B PP</span></button></div><br>
     <button id="hard-reset" onclick="resetGame()">Hard reset</button>
@@ -44,13 +44,19 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
     </div>
 
     <div id="upgrades" class="subtab" style="display: block;">
+        Prestige: <span class="prestigeDisplay">0</span><br>
         <div id="upgradesContainer"></div>
     </div>
 
     <div id="charge" class="subtab">
-        Charge: <span id="chargeText">0</span> (<span id="chargeGen">0</span>/s)<br>
-        Charge milestones: <br>
-        <div id="featureContainer"></div>
+        <span id="chargeName">Charge:</span> <span id="chargeText">0</span> (<span id="chargeGen">0</span>/s)<br>
+        <span id="chargeMilestones">Charge milestones:</span> <br>
+        <div id="featureContainer"></div><br>
+        <div id="superchargeContainer" style="display: none;">
+            <span id="supercharge">Supercharge: </span><span id="superchargeText">0</span><br>
+            <button onclick="supercharge()">Supercharge<br><span id="superchargeAmount">1M charge</span></button>
+        </div><br><br>
+        <div id="superchargeUpgrades"></div>
     </div>
 
 </div>
@@ -59,7 +65,7 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
     <div class="subtabs">
         <button class="subtab-button" data-subtab="ascUpgrades">Upgrades</button>
         <button class="subtab-button" data-subtab="milestones">Milestone</button>
-        <button class="subtab-button" data-subtab="challenges" style="display: none;">Challenges</button>
+        <button class="subtab-button" id="AscChallenges" data-subtab="challenges" style="display: none;">Challenges</button>
     </div>
 
     <div id="ascUpgrades" class="subtab">
@@ -72,7 +78,12 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
         <div id="ascMilestones"></div>
     </div>
 
-    <div id="challenges" class="subtab"></div>
+    <div id="challenges" class="subtab">
+        <p>Every challenge completion multiplies ascension gain by x2</p>
+        <h3 id="activeChallengeDisplay">Not in a challenge</h3>
+        <div id="ascChallenges"></div><br>
+        <button id="leaveChallengeBtn" onclick="exitChallenge()" style="display: none;">Leave Challenge</button>
+    </div>
 
 </div>
     <script src="https://cdn.jsdelivr.net/npm/break_infinity.js@2/dist/break_infinity.min.js"></script>
@@ -83,6 +94,7 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
     <script src="prestige_charge.js"></script>
     <script src="ascension.js"></script>
     <script src="ascension_milestones.js"></script>
+    <script src="ascension-challenges.js"></script>
     <script src="main.js"></script>
     <script src="automation.js"></script>
     <script src="save.js"></script>
