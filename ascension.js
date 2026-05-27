@@ -19,6 +19,9 @@ function ascendReset() {
    game.prestigeUpgradesBought = game.prestigeUpgradesBought.map((bought, i) => {
     return PrestigeUpgrades[i] && PrestigeUpgrades[i].permanent ? bought : false;
    });
+   if(hasAscensionMilestone(3)) {
+    game.prestigeUpgradesBought[13] = true;
+   }
 }
     game.prestigeBuyableLevels.forEach((_, i) => {
         game.prestigeBuyableLevels[i] = new Decimal(0);

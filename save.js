@@ -165,7 +165,7 @@ function safeInitialize() {
         game.activeChallenge = null;
 
     PointUpgrades.forEach((_, i) => {
-        if (!game.pointUpgradeLevels[i] === undefined)
+        if (game.pointUpgradeLevels[i] === undefined)
             game.pointUpgradeLevels[i] = new Decimal(0);
     });
 

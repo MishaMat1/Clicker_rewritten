@@ -264,8 +264,7 @@ let PrestigeUpgrades = [
         name: "A new feature.",
         description: "Unlock charge",
         cost: new Decimal(1e6),
-        permanent() { if(!hasAscensionMilestone(3)) return true; 
-            else return false },
+        permanent: false,
         effect: function(){ loadPrestigeCharge() }
      },
      {
