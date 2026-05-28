@@ -1,4 +1,4 @@
-const CURRENT_VERSION = "1.4.0";
+const CURRENT_VERSION = "1.4.1";
 
 const game = {
     version: CURRENT_VERSION,
@@ -40,7 +40,12 @@ const game = {
     ascensionMilestones: [],
 
     activeChallenge: null,
-    completedChallenges: []
+    challengeCompletions: {
+        0: 0,
+        1: 0,
+        2: 0,
+        3: 0
+    }
 }
 
 const EffectSources = {
@@ -70,6 +75,12 @@ const EffectSources = {
         },
 
         {
+            source: () => DarkChargeNerfs,
+            active: (item) =>
+                game.darkChargeNerfs[item.id]
+        },
+
+        {
             source: () => SuperchargeUpgrades,
             active: (item, id) =>
                 game.superchargeUpgradeLevels[id] && game.superchargeUpgradeLevels[id] > 0
@@ -90,7 +101,7 @@ const EffectSources = {
         {
             source: () => Challenges,
             active: (item, id) =>
-                item.effect(id)
+                getChallengeCompletions(id) > 0
         }
 
     ],

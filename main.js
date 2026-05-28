@@ -62,7 +62,8 @@ function formatNumber(decimal) {
 }
 
 function getTotalPointMultiplier() {
-    let mult = getEffects("points", "mutliplier");
+    let mult = Decimal.max(new Decimal(1), getEffects("points", "addition"));
+    mult = mult.mul(getEffects("points", "multiplier"));
     mult = mult.pow(getEffects("points", "exponent"));
     if (inChallenge(0)) {
         mult = mult.pow(0.5);

@@ -5,6 +5,7 @@ let Challenges = [
         type: "points",
         effectType: "exponent",
         description: "Points are square rooted (^0.5)",
+        completionLimit: 1,
         goal: new Decimal(1e36),
         goalDescription: "1e36 points",
         reward: "Reward: Points are raised ^1.05",
@@ -18,6 +19,7 @@ let Challenges = [
         type: "weaker-softcap",
         effectType: "reduction",
         description: "You cannot buy any point upgrades",
+        completionLimit: 1,
         goal: new Decimal(1e29),
         goalDescription: "1e29 points",
         reward: "Reward: Weaken compound softcap exponent by 0.1",
@@ -31,6 +33,7 @@ let Challenges = [
         type: "prestige",
         effectType: "exponent",
         description: "You cannot gain prestige points",
+        completionLimit: 1,
         goal: new Decimal(1e24),
         goalDescription: "1e24 points",
         reward: "Reward: Prestige points are raised ^1.05",
@@ -43,8 +46,9 @@ let Challenges = [
         name: "Dark charge...?",
         type: "unlock",
         description: "Charge is replaced with dark charge which nerfs you instead",
-        goal: new Decimal(1e100),
-        goalDescription: "1e100 points",
+        completionLimit: 1,
+        goal: new Decimal(1e90),
+        goalDescription: "1e90 points",
         reward: "Reward: Expand charge feature",
         effect() {
             return null;
@@ -57,9 +61,9 @@ let Challenges = [
 function loadAscensionChallenges() {
     let challengesContainer = document.getElementById("ascChallenges");
     challengesContainer.replaceChildren()
-        Challenges.forEach(ch => {
+    Challenges.forEach(ch => {
         let button = document.createElement("button");
-        let completed = game.completedChallenges.includes(ch.id);
+        let completed = getChallengeCompletions(ch.id) > 0;
         let active = game.activeChallenge === ch.id;
 
         let statusText = "";
@@ -88,12 +92,13 @@ function startChallenge(id) {
     game.activeChallenge = id;
     ascendReset();
     game.prestigeUpgradesBought = game.prestigeUpgradesBought.map((bought, i) => {
-    return PrestigeUpgrades[i] && PrestigeUpgrades[i].permanent ? bought : false;
+        return PrestigeUpgrades[i] && PrestigeUpgrades[i].permanent ? bought : false;
     });
     loadPrestigeUpgrades();
     loadAscensionChallenges();
     loadPrestigeCharge();
     if (ch.id === 3) {
+        game.prestigeUpgradesBought[13] = true;
         game.darkCharge = new Decimal(0);
         loadDarkCharge();
     }
@@ -111,19 +116,26 @@ function inChallenge(id) {
     return game.activeChallenge === id;
 }
 
+function completeChallenge(ch) {
+    let current = getChallengeCompletions(ch.id);
+    let limit = ch.completionLimit ?? Infinity;
+
+    if (current < limit) {
+        game.challengeCompletions[ch.id] = current + 1;
+    }
+}
+
 function updateChallenges() {
     if (game.activeChallenge === null) return;
 
     let ch = Challenges[game.activeChallenge];
 
     if (game.points.gte(ch.goal)) {
-        if (!game.completedChallenges.includes(ch.id)) {
-            game.completedChallenges.push(ch.id);
-        }
-
+        completeChallenge(ch);
         game.activeChallenge = null;
         ascendReset();
         loadSuperchargeUpgrades();
+        loadAscensionChallenges();
     }
 }
 
@@ -141,8 +153,12 @@ function updateChallengeUI() {
     }
 }
 
+function getChallengeCompletions(id) {
+    return game.challengeCompletions[id] || 0;
+}
+
 function getCompletedChallengesCount() {
-    return game.completedChallenges.length;
+    return Object.values(game.challengeCompletions).reduce((a, b) => a + b, 0);
 }
 
 function getChallengeAscensionMultiplier() {

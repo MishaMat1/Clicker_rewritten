@@ -43,7 +43,7 @@ function loadGame() {
     if (hasPrestigeUpgrade(9)) {
         document.getElementById("automationButton").style.display = "inline-block";
     }
-    if (game.completedChallenges[3]) {
+    if (getChallengeCompletions(3) > 0) {
         document.getElementById("superchargeContainer").style.display = "inline-block";
     }
     if (game.totalSupercharge.gt(0)) {
@@ -105,8 +105,13 @@ function migrateSave(oldVersion) {
         if (!game.superchargeUpgradeLevels)
             game.superchargeUpgradeLevels = [];
 
-        if (!game.completedChallenges)
-            game.completedChallenges = [];
+        if (!game.challengeCompletions)
+            game.challengeCompletions = {
+                0: 0,
+                1: 0,
+                2: 0,
+                3: 0
+            };
 
         if (game.activeChallenge === undefined)
             game.activeChallenge = null;
@@ -158,8 +163,13 @@ function safeInitialize() {
     if (!game.ascensionMilestones)
         game.ascensionMilestones = [];
 
-    if (!game.completedChallenges)
-        game.completedChallenges = [];
+    if (!game.challengeCompletions)
+        game.challengeCompletions = {
+            0: 0,
+            1: 0,
+            2: 0,
+            3: 0
+        };
 
     if (game.activeChallenge === undefined)
         game.activeChallenge = null;
