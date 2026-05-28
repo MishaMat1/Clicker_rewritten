@@ -47,8 +47,8 @@ let Challenges = [
         type: "unlock",
         description: "Charge is replaced with dark charge which nerfs you instead",
         completionLimit: 1,
-        goal: new Decimal(1e90),
-        goalDescription: "1e90 points",
+        goal: new Decimal(1e100),
+        goalDescription: "1e100 points",
         reward: "Reward: Expand charge feature",
         effect() {
             return null;
@@ -136,6 +136,9 @@ function updateChallenges() {
         ascendReset();
         loadSuperchargeUpgrades();
         loadAscensionChallenges();
+    }
+    if (getChallengeCompletions(3) > 0) {
+        document.getElementById("superchargeContainer").style.display = "inline-block";
     }
 }
 

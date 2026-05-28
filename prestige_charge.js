@@ -287,7 +287,7 @@ let SuperchargeUpgrades = [
 ];
 
 function loadSuperchargeUpgrades() {
-    if(!game.completedChallenges[3]) return;
+    if(getChallengeCompletions(3) < 1) return;
     const container = document.getElementById("superchargeUpgrades");
     container.replaceChildren(); 
     SuperchargeUpgrades.forEach(upgrade => {
