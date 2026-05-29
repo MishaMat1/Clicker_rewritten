@@ -47,8 +47,8 @@ let Challenges = [
         type: "unlock",
         description: "Charge is replaced with dark charge which nerfs you instead",
         completionLimit: 1,
-        goal: new Decimal(1e100),
-        goalDescription: "1e100 points",
+        goal: new Decimal(1e1000),
+        goalDescription: "1e1000 points",
         reward: "Reward: Expand charge feature",
         effect() {
             return null;
