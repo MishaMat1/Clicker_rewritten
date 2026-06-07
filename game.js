@@ -16,6 +16,8 @@ const game = {
     ascensionResetAmount: new Decimal(0),
     ascendRequirement: new Decimal(1e9),
     the_limit: new Decimal("1.8e308"),
+    LP: new Decimal(0),
+    LP_resetAmount: new Decimal(0),
     pointAuto: {
         enabled: false,
         timer: 0,
@@ -38,6 +40,8 @@ const game = {
 
     ascensionUpgradesBought: [],
     ascensionMilestones: [],
+
+    LoopUpgradesBought: [],
 
     activeChallenge: null,
     challengeCompletions: {
@@ -102,6 +106,12 @@ const EffectSources = {
             source: () => Challenges,
             active: (item, id) =>
                 getChallengeCompletions(id) > 0
+        },
+
+        {
+            source: () => LoopUpgrades,
+            active: (item, id) =>
+                game.LoopUpgradesBought[id] === true
         }
 
     ],

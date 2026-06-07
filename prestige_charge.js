@@ -94,14 +94,18 @@ function formatEffect(eff) {
 
 function getChargeMultiplier() {
     let ChargeMulti = getEffects("charge", "multiplier");
+    if (game.activeChallenge !== null) {
+        ChargeMulti = new Decimal(1);
+    }
     return ChargeMulti;
 }
 
 function chargeGen(diff) {
     let chargeMulti = new Decimal(1).mul(diff).mul(getChargeMultiplier())
+
     if (inChallenge(3)) {
         game.darkCharge = game.darkCharge.add(new Decimal(1).mul(diff))
-    } else {
+    } else{
         game.charge = game.charge.add(chargeMulti);
     }
 }
@@ -225,7 +229,9 @@ function DarkChargeNerf(type) {
 }
 
 function getSuperchargeGain() {
-    return Decimal.floor(game.charge.div(game.superchargeRequirement))
+    let gain = Decimal.floor(game.charge.div(game.superchargeRequirement))
+    gain = gain.mul(getEffects("supercharge", "multiplier"))
+    return gain;
 }
 
 function supercharge() {
@@ -283,6 +289,25 @@ let SuperchargeUpgrades = [
         cost(level) {
             return new Decimal(1000).mul(new Decimal(10).pow(level));
         }
+    },
+    {
+        id: 3,
+        name: "Even more charge... again",
+        description: "Supercharge boosts charge",
+        type: "charge",
+        effectType: "multiplier",
+        maxLevel: 1,
+        effect(){
+            return new Decimal(2).pow(Decimal.log(game.supercharge.add(1), 100))
+        },
+        effectDescription() {
+            let level = game.superchargeUpgradeLevels[this.id] || 0;
+            if(level === 0) return "";
+            return "Currently: x" + formatEffect(this.effect());
+        },
+        cost(level) {
+            return new Decimal(5000)
+        }
     }
 ];
 
@@ -295,8 +320,11 @@ function loadSuperchargeUpgrades() {
         let button = document.createElement("button");
         button.id = `supercharge-upgrade-${upgrade.id}`;
         button.innerHTML = upgrade.name + "<br>" + upgrade.description + "<br>" +
-        "Level: " + level + "/" + upgrade.maxLevel +
-        "<br>Cost: " + formatNumber(upgrade.cost(level)) + " supercharge";
+        "Level: " + level + "/" + upgrade.maxLevel
+        if(upgrade.effectDescription) {
+            button.innerHTML += "<br>" + upgrade.effectDescription();
+        }
+        button.innerHTML += "<br>Cost: " + formatNumber(upgrade.cost(level)) + " supercharge";
         container.appendChild(button);
         button.addEventListener("click", () => buySuperchargeUpgrade(upgrade.id));
     });

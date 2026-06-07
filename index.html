@@ -1,91 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My incremental game!</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-<div id="mainTabs">
+    <div id="mainTabs">
 
-<button class="tab-button tabBtn" data-tab="mainTab">Main</button>
+        <button class="tab-button tabBtn" data-tab="mainTab">Main</button>
 
-<button id="prestigeTabButton"
-        class="tab-button tabBtn prestigeBtn"
-        data-tab="prestigeTab"
-        style="display:none;">Prestige</button>
+        <button id="prestigeTabButton" class="tab-button tabBtn prestigeBtn" data-tab="prestigeTab"
+            style="display:none;">Prestige</button>
 
-<button id="automationButton"
-        class="tab-button tabBtn automationBtn"
-        data-tab="automationTab"
-        style="display:none;">Automation</button>
-<button id="ascendTabButton" class="tab-button tabBtn ascensionBtn" data-tab="ascendTab" style="display: none;">Ascension</button>
-</div>
-<br>
-<div id="mainTab" class="tab">
-Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
-<button onclick="pointClick()" style="padding: 8px 15px;">Click me!</button><br><br>
-<div id="clickUpgrades"></div><br>
-<div id="multiplierUpgrades"></div><br>
-<div id="compoundUpgrades"></div><br>
-<div id="autoclickerUpgrades"></div><br>
-
-    Prestige: <span class="prestigeDisplay">0</span><br>
-    <button onclick="prestige()">Prestige<br><span id="prestigeAmount">1M points</span></button><br><br>
-    <div id="ascension-box" style="display: none;">Ascension: <span id="ascension">0</span><br>
-    <button onclick="ascend()">Ascension<br><span id="ascendAmount">1B PP</span></button></div><br>
-    <button id="hard-reset" onclick="resetGame()">Hard reset</button>
-</div>
-<div id="prestigeTab" class="tab" style="display:none;">
-    <div class="subtabs">
-        <button class="subtab-button" data-subtab="upgrades">Upgrades</button>
-        <button class="subtab-button" id="chargeButton" data-subtab="charge">Charge</button>
+        <button id="automationButton" class="tab-button tabBtn automationBtn" data-tab="automationTab"
+            style="display:none;">Automation</button>
+        <button id="ascendTabButton" class="tab-button tabBtn ascensionBtn" data-tab="ascendTab"
+            style="display: none;">Ascension</button>
+        <button id="loopTabButton" class="tab-button tabBtn loopBtn" data-tab="loopTab"
+            style="display: none;">Loop</button>
     </div>
+    <br>
+    <div id="mainTab" class="tab">
+        Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
+        <button onclick="pointClick()" style="padding: 8px 15px;">Click me!</button><br><br>
+        <div id="clickUpgrades"></div><br>
+        <div id="multiplierUpgrades"></div><br>
+        <div id="compoundUpgrades"></div><br>
+        <div id="autoclickerUpgrades"></div><br>
 
-    <div id="upgrades" class="subtab" style="display: block;">
         Prestige: <span class="prestigeDisplay">0</span><br>
-        <div id="upgradesContainer"></div>
+        <button onclick="prestige()">Prestige<br><span id="prestigeAmount">1M points</span></button><br><br>
+        <div id="ascension-box" style="display: none;">Ascension: <span id="ascension">0</span><br>
+            <button onclick="ascend()">Ascension<br><span id="ascendAmount">1B PP</span></button>
+        </div><br>
+        <button id="hard-reset" onclick="resetGame()">Hard reset</button>
     </div>
+    <div id="prestigeTab" class="tab" style="display:none;">
+        <div class="subtabs">
+            <button class="subtab-button" data-subtab="upgrades">Upgrades</button>
+            <button class="subtab-button" id="chargeButton" data-subtab="charge">Charge</button>
+        </div>
 
-    <div id="charge" class="subtab">
-        <span id="chargeName">Charge:</span> <span id="chargeText">0</span> (<span id="chargeGen">0</span>/s)<br>
-        <span id="chargeMilestones">Charge milestones:</span> <br>
-        <div id="featureContainer"></div><br>
-        <div id="superchargeContainer" style="display: none;">
-            <span id="supercharge">Supercharge: </span><span id="superchargeText">0</span><br>
-            <button onclick="supercharge()">Supercharge<br><span id="superchargeAmount">1M charge</span></button>
-        </div><br><br>
-        <div id="superchargeUpgrades"></div>
-    </div>
+        <div id="upgrades" class="subtab" style="display: block;">
+            Prestige: <span class="prestigeDisplay">0</span><br>
+            <div id="upgradesContainer"></div>
+        </div>
 
-</div>
-<div id="automationTab" class="tab" style="display: none;"></div>
-<div id="ascendTab" class="tab" style="display: none;">
-    <div class="subtabs">
-        <button class="subtab-button" data-subtab="ascUpgrades">Upgrades</button>
-        <button class="subtab-button" data-subtab="milestones">Milestone</button>
-        <button class="subtab-button" id="AscChallenges" data-subtab="challenges" style="display: none;">Challenges</button>
-    </div>
+        <div id="charge" class="subtab">
+            <span id="chargeName">Charge:</span> <span id="chargeText">0</span> (<span id="chargeGen">0</span>/s)<br>
+            <span id="chargeMilestones">Charge milestones:</span> <br>
+            <div id="featureContainer"></div><br>
+            <div id="superchargeContainer" style="display: none;">
+                <span id="supercharge">Supercharge: </span><span id="superchargeText">0</span><br>
+                <button onclick="supercharge()">Supercharge<br><span id="superchargeAmount">1M charge</span></button>
+            </div><br><br>
+            <div id="superchargeUpgrades"></div>
+        </div>
 
-    <div id="ascUpgrades" class="subtab">
-        Ascension upgrades:
-        <div id="ascUpgradesContainer"></div>
     </div>
-        
-    <div id="milestones" class="subtab">
-        Ascension milestones:
-        <div id="ascMilestones"></div>
-    </div>
+    <div id="automationTab" class="tab" style="display: none;"></div>
+    <div id="ascendTab" class="tab" style="display: none;">
+        <div class="subtabs">
+            <button class="subtab-button" data-subtab="ascUpgrades">Upgrades</button>
+            <button class="subtab-button" data-subtab="milestones">Milestone</button>
+            <button class="subtab-button" id="AscChallenges" data-subtab="challenges"
+                style="display: none;">Challenges</button>
+        </div>
 
-    <div id="challenges" class="subtab">
-        <p>Every challenge completion multiplies ascension gain by x2</p>
-        <h3 id="activeChallengeDisplay">Not in a challenge</h3>
-        <div id="ascChallenges"></div><br>
-        <button id="leaveChallengeBtn" onclick="exitChallenge()" style="display: none;">Leave Challenge</button>
-    </div>
+        <div id="ascUpgrades" class="subtab">
+            Ascension upgrades:
+            <div id="ascUpgradesContainer"></div>
+        </div>
 
-</div>
+        <div id="milestones" class="subtab">
+            Ascension milestones:
+            <div id="ascMilestones"></div>
+        </div>
+
+        <div id="challenges" class="subtab">
+            <p>Every challenge completion multiplies ascension gain by x2. <b>Charge gen is strictly set to 1/s</b></p>
+            <h3 id="activeChallengeDisplay">Not in a challenge</h3>
+            <div id="ascChallenges"></div><br>
+            <button id="leaveChallengeBtn" onclick="exitChallenge()" style="display: none;">Leave Challenge</button>
+        </div>
+
+    </div>
+    <div id="loopTab" class="tab" style="display: none;">
+        <div id="loopContent">
+            <button id="loopButton" class="loopResetBtn" style="display: none;" onclick="loop()">Loop!</button><br>
+            <p class="loopContentText">Loop upgrades formula (x^2)</p>
+            <p class="loopContentText">You have looped <span id="LoopResetCount">0</span> times.</p>
+            <p class="loopContentText">You have <span id="LoopCount">0</span> LP (Loop Points)</p>
+            <p class="loopContentText">Loop upgrades:</p>
+            <div id="loopUpgrades"></div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/break_infinity.js@2/dist/break_infinity.min.js"></script>
     <script src="game.js"></script>
     <script src="tabs.js"></script>
@@ -96,7 +109,9 @@ Points: <span id="points">0</span> (<span id="idle">0</span>/s)<br>
     <script src="ascension_milestones.js"></script>
     <script src="ascension-challenges.js"></script>
     <script src="main.js"></script>
+    <script src="loop.js"></script>
     <script src="automation.js"></script>
     <script src="save.js"></script>
 </body>
+
 </html>

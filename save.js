@@ -32,23 +32,6 @@ function loadGame() {
     loadAscensionUpgrades();
     loadAscensionMilestones();
     generateAutomationUI();
-
-    if (game.prestigeResetAmount.gte(1) || game.ascensionResetAmount.gte(1)) {
-        document.getElementById("prestigeTabButton").style.display = "inline-block";
-    }
-
-    if (game.ascensionResetAmount.gte(1)) {
-        document.getElementById("ascendTabButton").style.display = "inline-block";
-    }
-    if (hasPrestigeUpgrade(9)) {
-        document.getElementById("automationButton").style.display = "inline-block";
-    }
-    if (getChallengeCompletions(3) > 0) {
-        document.getElementById("superchargeContainer").style.display = "inline-block";
-    }
-    if (game.totalSupercharge.gt(0)) {
-        loadSuperchargeUpgrades();
-    }
 }
 
 function resetGame() {
@@ -132,6 +115,8 @@ function DecimalConverter() {
     game.supercharge = new Decimal(game.supercharge);
     game.TotalAscensionPoints = new Decimal(game.TotalAscensionPoints);
     game.totalSupercharge = new Decimal(game.totalSupercharge);
+    game.LP = new Decimal(game.LP);
+    game.LP_resetAmount = new Decimal(game.LP_resetAmount);
 
     game.pointUpgradeLevels = game.pointUpgradeLevels.map(x => new Decimal(x));
     game.prestigeBuyableLevels = game.prestigeBuyableLevels.map(x => new Decimal(x));
@@ -170,6 +155,9 @@ function safeInitialize() {
             2: 0,
             3: 0
         };
+
+    if (!game.LoopUpgradesBought)
+        game.LoopUpgradesBought = [];
 
     if (game.activeChallenge === undefined)
         game.activeChallenge = null;
@@ -213,9 +201,33 @@ function safeInitialize() {
         if (game.ascensionMilestones[i] === undefined)
             game.ascensionMilestones[i] = false;
     });
+    LoopUpgrades.forEach((_, i) => {
+        if (game.LoopUpgradesBought[i] === undefined)
+            game.LoopUpgradesBought[i] = false;
+    });
 }
 
 function applyPermanentUnlocks() {
+
+    if (game.prestigeResetAmount.gte(1) || game.ascensionResetAmount.gte(1) || game.LP_resetAmount.gte(1)) {
+        document.getElementById("prestigeTabButton").style.display = "inline-block";
+    }
+
+    if (game.ascensionResetAmount.gte(1) || game.LP_resetAmount.gte(1)) {
+        document.getElementById("ascendTabButton").style.display = "inline-block";
+    }
+
+    if (hasPrestigeUpgrade(9)) {
+        document.getElementById("automationButton").style.display = "inline-block";
+    }
+
+    if (getChallengeCompletions(3) > 0) {
+        document.getElementById("superchargeContainer").style.display = "inline-block";
+    }
+
+    if (game.totalSupercharge.gt(0)) {
+        loadSuperchargeUpgrades();
+    }
 
     if (hasPrestigeUpgrade(15)) {
         document.getElementById("ascension-box").style.display = "block";
@@ -223,6 +235,15 @@ function applyPermanentUnlocks() {
 
     if (hasAscensionUpgrade(10)) {
         document.getElementById("AscChallenges").style.display = "inline-block";
+    }
+
+    if (game.points.gte(game.the_limit) || game.LP_resetAmount.gte(1)) {
+        document.getElementById("loopTabButton").style.display = "inline-block";
+    }
+
+    if(game.LP_resetAmount.gte(1)) {
+        document.querySelectorAll(".loopContentText").forEach(el => el.style.display = "block");
+        loadLoopUpgrades();
     }
 }
 window.onload = function () {

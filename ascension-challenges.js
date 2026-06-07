@@ -6,8 +6,8 @@ let Challenges = [
         effectType: "exponent",
         description: "Points are square rooted (^0.5)",
         completionLimit: 1,
-        goal: new Decimal(1e36),
-        goalDescription: "1e36 points",
+        goal: new Decimal(1e40),
+        goalDescription: "1e40 points",
         reward: "Reward: Points are raised ^1.05",
         effect() {
             return new Decimal(1.05)
@@ -15,13 +15,13 @@ let Challenges = [
     },
     {
         id: 1,
-        name: "No upgrades",
+        name: "Limited upgrades",
         type: "weaker-softcap",
         effectType: "reduction",
-        description: "You cannot buy any point upgrades",
+        description: "You have only 10 purchases of point upgrades",
         completionLimit: 1,
-        goal: new Decimal(1e29),
-        goalDescription: "1e29 points",
+        goal: new Decimal(1e50),
+        goalDescription: "1e50 points",
         reward: "Reward: Weaken compound softcap exponent by 0.1",
         effect() {
             return new Decimal(0.1)
@@ -34,8 +34,8 @@ let Challenges = [
         effectType: "exponent",
         description: "You cannot gain prestige points",
         completionLimit: 1,
-        goal: new Decimal(1e24),
-        goalDescription: "1e24 points",
+        goal: new Decimal(1e100),
+        goalDescription: "1e100 points",
         reward: "Reward: Prestige points are raised ^1.05",
         effect() {
             return new Decimal(1.05)
@@ -47,8 +47,8 @@ let Challenges = [
         type: "unlock",
         description: "Charge is replaced with dark charge which nerfs you instead",
         completionLimit: 1,
-        goal: new Decimal(1e1000),
-        goalDescription: "1e1000 points",
+        goal: new Decimal(1e115),
+        goalDescription: "1e115 points",
         reward: "Reward: Expand charge feature",
         effect() {
             return null;
@@ -94,11 +94,11 @@ function startChallenge(id) {
     game.prestigeUpgradesBought = game.prestigeUpgradesBought.map((bought, i) => {
         return PrestigeUpgrades[i] && PrestigeUpgrades[i].permanent ? bought : false;
     });
+    game.prestigeUpgradesBought[13] = true;
     loadPrestigeUpgrades();
     loadAscensionChallenges();
     loadPrestigeCharge();
     if (ch.id === 3) {
-        game.prestigeUpgradesBought[13] = true;
         game.darkCharge = new Decimal(0);
         loadDarkCharge();
     }

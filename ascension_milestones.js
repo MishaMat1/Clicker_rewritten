@@ -109,17 +109,6 @@ function updateAscensionMilestones() {
     }
 }
 
-function AscensionMulti(type) {
-    let mult = new Decimal(1); 
-    AscensionMilestones.forEach(milestone => {
-        if (milestone.obtained && milestone.effect && milestone.type === type) {
-            mult = mult.mul(milestone.effect());
-        }
-    })
-    return mult
-}
-
-
 function hasAscensionMilestone(id) {
     return !!AscensionMilestones.find(u => u.id === id)?.obtained
 }

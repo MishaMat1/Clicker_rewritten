@@ -9,11 +9,21 @@ const UI = {
     ascensionAmount: document.getElementById("ascendAmount"),
     supercharge: document.getElementById("superchargeText"),
     superchargeAmount: document.getElementById("superchargeAmount"),
+    LP: document.getElementById("LoopCount"),
+    LPResetAmount: document.getElementById("LoopResetCount")
 }
 
 function updateSubtabUnlocks() {
     document.getElementById("chargeButton").style.display =
         hasPrestigeUpgrade(13) ? "inline-block" : "none";
+}
+
+function updateLoopTab() {
+    document.getElementById("loopTabButton").style.display =
+        game.points.gte(game.the_limit) || game.LP_resetAmount.gte(1) ? "inline-block" : "none";
+
+    document.getElementById("loopButton").style.display =
+        game.points.gte(game.the_limit) ? "inline-block" : "none";
 }
 
 function updateUI() {
@@ -50,7 +60,12 @@ function updateUI() {
     } else {
         UI.superchargeAmount.textContent = `+ ${formatNumber(getSuperchargeGain())} supercharge`;
     }
+
+    UI.LP.textContent = formatNumber(game.LP);
+    UI.LPResetAmount.textContent = formatNumber(game.LP_resetAmount);
+
     updateSubtabUnlocks();
+    updateLoopTab();
     updatePointUpgradesUI();
     updatePrestigeBuyablesUI();
     updateChargeMilestones();

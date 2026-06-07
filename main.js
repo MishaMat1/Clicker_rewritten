@@ -93,6 +93,7 @@ let PointUpgrades = [
         type: "points",
         effectType: "addition",
         category: "click",
+        challengeCounted: true,
         getCost: function (index) {
             let level = game.pointUpgradeLevels[index];
             let scaled = this.ScaledLevel;
@@ -143,6 +144,7 @@ let PointUpgrades = [
         type: "points",
         effectType: "multiplier",
         category: "multiplier",
+        challengeCounted: true,
         getCost: function (index) {
             let level = game.pointUpgradeLevels[index];
             let scaled = this.ScaledLevel;
@@ -204,6 +206,7 @@ let PointUpgrades = [
         type: "points",
         effectType: "multiplier",
         category: "compound",
+        challengeCounted: true,
         getCost: function (index) {
             let level = game.pointUpgradeLevels[index];
             let scaled = this.ScaledLevel.add(getEffects("ScalingDelay", "addition"));
@@ -279,6 +282,7 @@ let PointUpgrades = [
         SuperScaledLevel: new Decimal(1000),
         type: "autoclicker",
         category: "autoclicker",
+        challengeCounted: false,
         getCost: function (index) {
             let level = game.pointUpgradeLevels[index];
             let scaled = this.ScaledLevel;
@@ -313,8 +317,20 @@ let PointUpgrades = [
     }
 ];
 
+function getTotalPointUpgradeLevels() {
+    let total = new Decimal(0);
+
+    game.pointUpgradeLevels.forEach((level, index) => {
+        if (PointUpgrades[index].challengeCounted === false) return;
+
+        total = total.add(level);
+    });
+
+    return total;
+}
+
 function buyPointUpgrade(index) {
-    if (inChallenge(1)) return;
+    if (inChallenge(1) && getTotalPointUpgradeLevels().gte(10)) return;
     let upg = PointUpgrades[index];
     let cost = upg.getCost(index);
     if (game.points.gte(cost)) {
@@ -325,7 +341,7 @@ function buyPointUpgrade(index) {
 }
 
 function buyPointUpgradeMax(index) {
-    if (inChallenge(1)) return;
+    if (inChallenge(1) && getTotalPointUpgradeLevels().gte(10)) return;
     let upg = PointUpgrades[index];
 
     let points = game.points;
