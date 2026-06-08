@@ -11,9 +11,8 @@ function gameLoop() {
     let PointInterval = getPointAutoInterval();
     let PrestigeInterval = getPrestigeAutoInterval();
 
-    if (game.pointAuto.enabled && game.pointAuto.timer >= PointInterval) {
+    if (game.pointAuto.enabled && game.pointAuto.timer >= PointInterval && !inChallenge(1)) {
         game.pointAuto.timer = 0;
-
         for (let i = 0; i < PointUpgrades.length; i++) {
             buyPointUpgradeMax(i);
         }
@@ -31,7 +30,7 @@ function gameLoop() {
         chargeGen(diff);
     }
 
-    if (hasAscensionMilestone(8)) {
+    if (hasAscensionMilestone(8) && !inChallenge(2)) {
         prestigeGen(diff);
     }
 

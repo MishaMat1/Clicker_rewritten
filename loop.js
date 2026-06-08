@@ -1,4 +1,5 @@
 function loop() {
+    game.pointAuto.level = 0;
     game.prestigeAuto.level = 0;
     game.prestigeAuto.enabled = false;
     game.ascensionPoints = new Decimal(0);
@@ -23,16 +24,14 @@ function loop() {
         3: 0
     };
     ascendReset();
-    loadPrestigeUpgrades();
-    loadAscensionUpgrades();
     loadAscensionMilestones();
     generateAutomationUI();
+    loadPrestigeUpgrades();
+    loadAscensionUpgrades();
     game.LP = game.LP.add(1);
     game.LP_resetAmount = game.LP_resetAmount.add(1);
     document.querySelectorAll(".loopContentText").forEach(el => el.style.display = "block");
     loadLoopUpgrades();
-    console.log("After reset:", game.ascensionMilestones);
-console.log("Ascension points:", game.ascensionPoints.toString());
 }
 
 let LoopUpgrades = [

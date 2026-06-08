@@ -34,8 +34,8 @@ let Challenges = [
         effectType: "exponent",
         description: "You cannot gain prestige points",
         completionLimit: 1,
-        goal: new Decimal(1e100),
-        goalDescription: "1e100 points",
+        goal: new Decimal(1e28),
+        goalDescription: "1e28 points (10 Oc)",
         reward: "Reward: Prestige points are raised ^1.05",
         effect() {
             return new Decimal(1.05)
