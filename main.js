@@ -70,11 +70,20 @@ function getTotalPointMultiplier() {
     if (inChallenge(3)) {
         mult = mult.div(getEffects("points", "division"));
     }
+    mult = softcap(mult, "1e500", 0.8);
+    mult = softcap(mult, "1e700", 0.7);
+    mult = softcap(mult, "1e900", 0.6);
     return mult;
 }
 
+function softcap(value, start, power) {
+    if (value.lte(start)) return value;
+
+    return value.div(start).pow(power).mul(start);
+}
+
 function pointClick() {
-    if(game.points.gte(game.the_limit)) return;
+    if (game.points.gte(game.the_limit)) return;
     game.points = game.points.add(getTotalPointMultiplier());
 }
 
@@ -128,7 +137,7 @@ let PointUpgrades = [
 
     {
         name: "Multiplier",
-        description: function() {
+        description: function () {
             let base = getEffects("upgrade-power", "multiplier", this)
             if (base.lt(1000)) {
                 return "+ x" + base.toNumber().toFixed(2) + " points per level"
@@ -330,7 +339,7 @@ function getTotalPointUpgradeLevels() {
 
 function buyPointUpgrade(index) {
     let remaining = Infinity;
-
+    
     if (inChallenge(1)) {
         remaining = 10 - getTotalPointUpgradeLevels().toNumber();
 
@@ -341,7 +350,6 @@ function buyPointUpgrade(index) {
     if (game.points.gte(cost)) {
         game.points = game.points.sub(cost);
         game.pointUpgradeLevels[index] = game.pointUpgradeLevels[index].add(1);
-        upg.effect(index);
     }
 }
 
@@ -349,18 +357,15 @@ function buyPointUpgradeMax(index) {
     let upg = PointUpgrades[index];
     let points = game.points;
 
-    
-
-
     while (true) {
 
         let remaining = Infinity;
 
-    if (inChallenge(1)) {
-        remaining = 10 - getTotalPointUpgradeLevels().toNumber();
+        if (inChallenge(1)) {
+            remaining = 10 - getTotalPointUpgradeLevels().toNumber();
 
-        if (remaining <= 0) return;
-    }
+            if (remaining <= 0) return;
+        }
 
         let cost = upg.getCost(index);
         if (points.lt(cost)) break;
@@ -371,10 +376,10 @@ function buyPointUpgradeMax(index) {
 
         for (let i = 0; i < bulk; i++) {
             if (inChallenge(1)) {
-        remaining = 10 - getTotalPointUpgradeLevels().toNumber();
+                remaining = 10 - getTotalPointUpgradeLevels().toNumber();
 
-        if (remaining <= 0) break;
-    }
+                if (remaining <= 0) break;
+            }
             let c = upg.getCost(index);
             if (points.lt(totalCost.add(c))) break;
 
@@ -453,7 +458,7 @@ function updatePointUpgradesUI() {
 }
 
 function Idle(diff) {
-    if(game.points.gte(game.the_limit)) return;
+    if (game.points.gte(game.the_limit)) return;
     let pointsFromAutoclickers = PointUpgrades[3].effect(3)
         .mul(getTotalPointMultiplier())
         .mul((diff / 5) * (getEffects("autoclicker", "multiplier")));

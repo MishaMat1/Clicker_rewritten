@@ -1,4 +1,4 @@
-const CURRENT_VERSION = "1.4.1";
+const CURRENT_VERSION = "1.4.2";
 
 const game = {
     version: CURRENT_VERSION,
@@ -15,7 +15,7 @@ const game = {
     TotalAscensionPoints: new Decimal(0),
     ascensionResetAmount: new Decimal(0),
     ascendRequirement: new Decimal(1e9),
-    the_limit: new Decimal("1.8e308"),
+    the_limit: new Decimal("1e1000"),
     LP: new Decimal(0),
     LP_resetAmount: new Decimal(0),
     pointAuto: {

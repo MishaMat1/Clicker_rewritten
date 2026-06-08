@@ -115,6 +115,7 @@ function DecimalConverter() {
     game.supercharge = new Decimal(game.supercharge);
     game.TotalAscensionPoints = new Decimal(game.TotalAscensionPoints);
     game.totalSupercharge = new Decimal(game.totalSupercharge);
+    game.the_limit = new Decimal(game.the_limit);
     game.LP = new Decimal(game.LP);
     game.LP_resetAmount = new Decimal(game.LP_resetAmount);
 

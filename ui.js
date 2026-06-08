@@ -20,10 +20,10 @@ function updateSubtabUnlocks() {
 
 function updateLoopTab() {
     document.getElementById("loopTabButton").style.display =
-        game.points.gte(game.the_limit) || game.LP_resetAmount.gte(1) ? "inline-block" : "none";
+        game.points.gte("1.8e308") || game.LP_resetAmount.gte(1) ? "inline-block" : "none";
 
     document.getElementById("loopButton").style.display =
-        game.points.gte(game.the_limit) ? "inline-block" : "none";
+        game.points.gte("1.8e308") ? "inline-block" : "none";
 }
 
 function updateUI() {
