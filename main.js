@@ -329,7 +329,13 @@ function getTotalPointUpgradeLevels() {
 }
 
 function buyPointUpgrade(index) {
-    if (inChallenge(1) && getTotalPointUpgradeLevels().gte(10)) return;
+    let remaining = Infinity;
+
+    if (inChallenge(1)) {
+        remaining = 10 - getTotalPointUpgradeLevels().toNumber();
+
+        if (remaining <= 0) return;
+    }
     let upg = PointUpgrades[index];
     let cost = upg.getCost(index);
     if (game.points.gte(cost)) {
@@ -340,12 +346,21 @@ function buyPointUpgrade(index) {
 }
 
 function buyPointUpgradeMax(index) {
-    if (inChallenge(1) && getTotalPointUpgradeLevels().gte(10)) return;
     let upg = PointUpgrades[index];
-
     let points = game.points;
 
+    
+
+
     while (true) {
+
+        let remaining = Infinity;
+
+    if (inChallenge(1)) {
+        remaining = 10 - getTotalPointUpgradeLevels().toNumber();
+
+        if (remaining <= 0) return;
+    }
 
         let cost = upg.getCost(index);
         if (points.lt(cost)) break;
@@ -355,6 +370,11 @@ function buyPointUpgradeMax(index) {
         let totalCost = new Decimal(0);
 
         for (let i = 0; i < bulk; i++) {
+            if (inChallenge(1)) {
+        remaining = 10 - getTotalPointUpgradeLevels().toNumber();
+
+        if (remaining <= 0) break;
+    }
             let c = upg.getCost(index);
             if (points.lt(totalCost.add(c))) break;
 
